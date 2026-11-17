@@ -4,6 +4,8 @@
 #  - When a release is published (the same release that holds the Mac app): builds the installer and
 #    attaches PII-Vault-Setup.exe + its .sha256 to that release, which is what the in-app updater uses.
 #    The release tag must match engine/piivault/__init__.py (tag v0.5.0 = version 0.5.0).
+#  - A push to "windows" whose commit message contains [attach] also attaches the installer to the
+#    release that matches the engine version (for example v0.4.0).
 #  - Run by hand (Actions > Build Windows > Run workflow), optionally attaching to an existing tag.
 name: Build Windows
 
@@ -95,10 +97,10 @@ jobs:
             dist/PII-Vault-Setup.exe.sha256
 
       - name: Attach to the release
-        if: github.event_name == 'release' || inputs.attach_to_tag != ''
+        if: github.event_name == 'release' || inputs.attach_to_tag != '' || contains(github.event.head_commit.message, '[attach]')
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = if ("${{ github.event_name }}" -eq "release") { "${{ github.event.release.tag_name }}" } else { "${{ inputs.attach_to_tag }}" }
+          $tag = if ("${{ github.event_name }}" -eq "release") { "${{ github.event.release.tag_name }}" } elseif ("${{ inputs.attach_to_tag }}" -ne "") { "${{ inputs.attach_to_tag }}" } else { "v${{ steps.ver.outputs.version }}" }
           gh release upload $tag dist/PII-Vault-Setup.exe dist/PII-Vault-Setup.exe.sha256 --clobber
