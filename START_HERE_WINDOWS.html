@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>START HERE: Installing PII Vault for Windows</title>
+<style>
+  :root {
+    --navy: #142142; --blue: #2E5CB8; --red: #CE1126; --green: #289E66; --amber: #E0941A;
+    --ink: #1d1d1f; --muted: #5f6470; --line: #e3e5ea; --bg: #f6f7f9; --card: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.55 "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+         color: var(--ink); background: var(--bg); }
+  header { background: var(--navy); color: #fff; padding: 36px 24px 30px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  header .wrap { display: flex; gap: 20px; align-items: center; }
+  header img { width: 84px; height: 84px; border-radius: 20px; background: #fff; }
+  header h1 { margin: 0; font-size: 30px; letter-spacing: -0.3px; }
+  header p { margin: 6px 0 0; color: #c9d1e6; font-size: 17px; }
+  main { padding: 26px 24px 60px; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 22px; }
+  nav.toc a { text-decoration: none; color: var(--navy); background: #fff; border: 1px solid var(--line);
+              border-radius: 999px; padding: 5px 12px; font-size: 14px; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px 26px;
+            margin: 0 0 18px; }
+  h2 { margin: 0 0 6px; font-size: 22px; color: var(--navy); display: flex; align-items: center; gap: 10px; }
+  h2 .n { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--navy); color: #fff;
+          font-size: 15px; display: inline-flex; align-items: center; justify-content: center; }
+  h3 { margin: 18px 0 4px; font-size: 17px; }
+  ol, ul { padding-left: 22px; margin: 8px 0; }
+  li { margin: 5px 0; }
+  .fig { margin: 14px 0 6px; border: 1px solid var(--line); border-radius: 12px; background: #eef0f4; padding: 14px;
+         text-align: center; }
+  .fig svg { max-width: 100%; height: auto; }
+  .cap { font-size: 13px; color: var(--muted); text-align: center; margin: 4px 0 0; }
+  .note { border-left: 4px solid var(--amber); background: #fff8eb; padding: 10px 14px; border-radius: 6px; margin: 12px 0; }
+  .ok { border-left: 4px solid var(--green); background: #eefaf3; padding: 10px 14px; border-radius: 6px; margin: 12px 0; }
+  .warn { border-left: 4px solid var(--red); background: #fff0f1; padding: 10px 14px; border-radius: 6px; margin: 12px 0; }
+  kbd, .ui { font: 600 14px -apple-system, BlinkMacSystemFont, sans-serif; background: #eef0f4; border: 1px solid #d5d8df;
+             border-radius: 6px; padding: 1px 7px; white-space: nowrap; }
+  code { font: 14px ui-monospace, Menlo, monospace; background: #eef0f4; padding: 1px 5px; border-radius: 5px; }
+  table.folders { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 15px; }
+  table.folders td { border-top: 1px solid var(--line); padding: 8px 10px; vertical-align: top; }
+  table.folders td:first-child { white-space: nowrap; font-weight: 600; }
+  footer { color: var(--muted); font-size: 13px; text-align: center; margin-top: 24px; }
+  @media print { body { background: #fff; } section { break-inside: avoid; } nav.toc { display: none; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <img src="data:image/png;base64,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" alt="PII Vault icon">
+    <div>
+      <h1>START HERE: PII Vault for Windows</h1>
+      <p>Use ChatGPT, Copilot, Gemini, Claude, or any AI tool on files with student data, without the AI ever seeing the real names.</p>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<nav class="toc">
+  <a href="#install">1. Install</a>
+  <a href="#smartscreen">2. "Windows protected your PC"</a>
+  <a href="#welcome">3. Welcome screen</a>
+  <a href="#folder">4. Your PII Vault folder</a>
+  <a href="#using">5. Using it</a>
+  <a href="#updates">6. Updates</a>
+  <a href="#help">Help</a>
+</nav>
+
+<div class="ok">Don't have it yet? <a href="https://github.com/stephen-dawkins/pii-vault/releases/latest/download/PII-Vault-Setup.exe">Download PII Vault for Windows (PII-Vault-Setup.exe)</a>.</div>
+
+<p>Setup takes about five minutes. You need a 64-bit PC running Windows 10 (version 1809 or later) or Windows 11, with 8 GB of memory. You don't need to be an administrator. Everything runs on your PC, and nothing is sent anywhere except the protected copies you give your AI tool.</p>
+
+<section id="install">
+  <h2><span class="n">1</span> Run the installer</h2>
+  <p>Double-click <b>PII-Vault-Setup.exe</b> (it's probably in your Downloads folder). If your browser asks whether to keep the file, choose <span class="ui">Keep</span>.</p>
+  <p>The installer installs PII Vault for your Windows account only, so it doesn't ask for an administrator password. Click <span class="ui">Next</span>, leave <b>Put a PII Vault shortcut on the desktop</b> ticked, and click <span class="ui">Install</span>. When it finishes, leave <b>Open PII Vault</b> ticked and click <span class="ui">Finish</span>.</p>
+  <div class="fig">
+    <svg viewBox="0 0 460 300" width="460" role="img" aria-label="PII Vault setup window with Install button">
+      <rect x="10" y="10" width="440" height="280" rx="8" fill="#fff" stroke="#cfd3db"/>
+      <rect x="10" y="10" width="440" height="34" rx="8" fill="#f3f3f3"/>
+      <rect x="10" y="36" width="440" height="8" fill="#f3f3f3"/>
+      <text x="26" y="32" font-size="13" fill="#1d1d1f" font-family="Segoe UI, Arial">Setup - PII Vault</text>
+      <text x="400" y="32" font-size="14" fill="#5f6470" font-family="Segoe UI, Arial">✕</text>
+      <rect x="10" y="44" width="130" height="246" fill="#142142"/>
+      <rect x="40" y="110" width="70" height="70" rx="16" fill="#fff"/>
+      <path d="M75 122 l22 8 v16 c0 13 -9 22 -22 25 c-13 -3 -22 -12 -22 -25 v-16 z" fill="#142142"/>
+      <rect x="64" y="140" width="22" height="4" rx="2" fill="#fff"/><rect x="64" y="149" width="10" height="4" rx="2" fill="#fff"/><rect x="77" y="149" width="10" height="4" rx="2" fill="#CE1126"/>
+      <text x="160" y="80" font-size="16" font-weight="600" fill="#1d1d1f" font-family="Segoe UI, Arial">Ready to install</text>
+      <text x="160" y="106" font-size="12" fill="#5f6470" font-family="Segoe UI, Arial">PII Vault installs for your account only.</text>
+      <text x="160" y="124" font-size="12" fill="#5f6470" font-family="Segoe UI, Arial">No administrator password needed.</text>
+      <rect x="160" y="150" width="14" height="14" rx="3" fill="#2E5CB8"/>
+      <path d="M163 157 l3 3 l5 -6" stroke="#fff" stroke-width="2" fill="none"/>
+      <text x="182" y="162" font-size="12" fill="#1d1d1f" font-family="Segoe UI, Arial">Put a PII Vault shortcut on the desktop</text>
+      <rect x="250" y="246" width="86" height="28" rx="4" fill="#fff" stroke="#b9bec8"/>
+      <text x="293" y="265" font-size="12" text-anchor="middle" fill="#1d1d1f" font-family="Segoe UI, Arial">&lt; Back</text>
+      <rect x="346" y="243" width="92" height="34" rx="6" fill="#2E5CB8" stroke="#CE1126" stroke-width="3"/>
+      <text x="392" y="265" font-size="13" text-anchor="middle" fill="#fff" font-weight="600" font-family="Segoe UI, Arial">Install</text>
+    </svg>
+  </div>
+  <p class="cap">Click Install. It takes less than a minute.</p>
+  <div class="note">If the installer says Microsoft Edge WebView2 is being installed, let it finish. PII Vault uses it to draw its window, and most PCs already have it.</div>
+</section>
+
+<section id="smartscreen">
+  <h2><span class="n">2</span> If you see "Windows protected your PC"</h2>
+  <p>PII Vault was made at Ole Miss and isn't sold through the Microsoft Store, so Windows SmartScreen may show a blue warning the first time you run the installer. That's expected, and you only do this once.</p>
+  <ol>
+    <li>Click <span class="ui">More info</span> (under the message, not the big button).</li>
+    <li>Check that the app name says <b>PII-Vault-Setup.exe</b>, then click <span class="ui">Run anyway</span>.</li>
+  </ol>
+  <div class="fig">
+    <svg viewBox="0 0 460 280" width="460" role="img" aria-label="Windows protected your PC, with More info link and Run anyway button">
+      <rect x="10" y="10" width="440" height="260" rx="4" fill="#0f5ba7"/>
+      <text x="410" y="38" font-size="15" fill="#fff" font-family="Segoe UI, Arial">✕</text>
+      <text x="34" y="66" font-size="22" fill="#fff" font-family="Segoe UI, Arial">Windows protected your PC</text>
+      <text x="34" y="98" font-size="12" fill="#e6eefb" font-family="Segoe UI, Arial">Microsoft Defender SmartScreen prevented an unrecognized app</text>
+      <text x="34" y="115" font-size="12" fill="#e6eefb" font-family="Segoe UI, Arial">from starting. Running this app might put your PC at risk.</text>
+      <rect x="30" y="126" width="76" height="24" rx="4" fill="none" stroke="#CE1126" stroke-width="3"/>
+      <text x="36" y="143" font-size="12.5" fill="#fff" text-decoration="underline" font-family="Segoe UI, Arial">More info</text>
+      <text x="34" y="176" font-size="12" fill="#e6eefb" font-family="Segoe UI, Arial">App:  PII-Vault-Setup.exe</text>
+      <text x="34" y="194" font-size="12" fill="#e6eefb" font-family="Segoe UI, Arial">Publisher:  Unknown publisher</text>
+      <rect x="226" y="222" width="104" height="32" fill="#0f5ba7" stroke="#fff" stroke-width="1.5"/>
+      <rect x="222" y="218" width="112" height="40" fill="none" stroke="#CE1126" stroke-width="3"/>
+      <text x="278" y="243" font-size="13" text-anchor="middle" fill="#fff" font-family="Segoe UI, Arial">Run anyway</text>
+      <rect x="340" y="222" width="96" height="32" fill="#fff"/>
+      <text x="388" y="243" font-size="13" text-anchor="middle" fill="#0f5ba7" font-family="Segoe UI, Arial">Don't run</text>
+    </svg>
+  </div>
+  <p class="cap">Click More info, then Run anyway. Don't click Don't run.</p>
+  <div class="note">On a university-managed PC, your IT office may block apps that aren't in the Microsoft Store. If there's no <b>Run anyway</b> button, ask IT to allow <b>PII-Vault-Setup.exe</b>.</div>
+</section>
+
+<section id="welcome">
+  <h2><span class="n">3</span> The welcome screen</h2>
+  <ul>
+    <li><b>Pick the AI tool you use</b> (ChatGPT, Copilot, Gemini, Claude, or Other). This only changes the Open button. Protecting and restoring work the same with any tool.</li>
+    <li><b>Your PII Vault folder is made for you.</b> You don't choose where anything goes (more on the folder below).</li>
+    <li><b>Recommended: better name finding.</b> PII Vault checks for Ollama, a free app that runs a small, private name-finding model on your PC. If you don't have it, click <span class="ui">Download Ollama</span>, run <b>OllamaSetup.exe</b>, and click <span class="ui">Install</span>. PII Vault notices by itself; then click <span class="ui">Download Model</span>. You can skip this and do it later in Settings.</li>
+    <li>Click <span class="ui">Get Started</span> and you're done.</li>
+  </ul>
+</section>
+
+<section id="folder">
+  <h2><span class="n">4</span> Your PII Vault folder</h2>
+  <p>Everything lives in one folder called <b>PII Vault</b> in your user folder (<code>C:\Users\your name\PII Vault</code>). It's kept out of Documents and Desktop on purpose, because those are often backed up to OneDrive, and restored student data should never be copied to the cloud.</p>
+  <div class="fig">
+    <svg viewBox="0 0 600 220" width="600" role="img" aria-label="File Explorer showing the PII Vault folder">
+      <rect x="10" y="10" width="580" height="200" rx="10" fill="#fff" stroke="#cfd3db"/>
+      <rect x="10" y="10" width="160" height="200" rx="10" fill="#f3f4f7"/>
+      <rect x="160" y="10" width="10" height="200" fill="#f3f4f7"/>
+      <text x="28" y="40" font-size="12" fill="#8a8f99" font-family="Segoe UI, Arial">Quick access</text>
+      <text x="40" y="66" font-size="13" fill="#1d1d1f" font-family="Segoe UI, Arial">Desktop</text>
+      <text x="40" y="90" font-size="13" fill="#1d1d1f" font-family="Segoe UI, Arial">Downloads</text>
+      <text x="40" y="114" font-size="13" fill="#1d1d1f" font-family="Segoe UI, Arial">Documents</text>
+      <rect x="24" y="126" width="136" height="26" rx="5" fill="#dbe3f3"/>
+      <text x="40" y="144" font-size="13" fill="#142142" font-weight="600" font-family="Segoe UI, Arial">PII Vault</text>
+      <path d="M196 52 h12 l4 4 h18 v20 h-34 z" fill="#f2c94c"/>
+      <text x="242" y="70" font-size="14" font-weight="600" fill="#1d1d1f" font-family="Segoe UI, Arial">For AI</text>
+      <path d="M226 92 h12 l4 4 h18 v20 h-34 z" fill="#f2c94c"/>
+      <text x="272" y="110" font-size="13" fill="#1d1d1f" font-family="Segoe UI, Arial">Protected</text>
+      <text x="370" y="110" font-size="13" fill="#2E5CB8" font-family="Segoe UI, Arial">the only files you give an AI</text>
+      <path d="M226 128 h12 l4 4 h18 v20 h-34 z" fill="#f2c94c"/>
+      <text x="272" y="146" font-size="13" fill="#1d1d1f" font-family="Segoe UI, Arial">AI Output</text>
+      <text x="370" y="146" font-size="13" fill="#2E5CB8" font-family="Segoe UI, Arial">Claude's Cowork mode saves here</text>
+      <path d="M196 168 h12 l4 4 h18 v20 h-34 z" fill="#CE1126"/>
+      <text x="242" y="186" font-size="14" font-weight="600" fill="#1d1d1f" font-family="Segoe UI, Arial">Restored</text>
+      <text x="370" y="186" font-size="13" fill="#CE1126" font-family="Segoe UI, Arial">real data: never give to an AI</text>
+    </svg>
+  </div>
+  <p class="cap">Tip: right-click the PII Vault folder and choose Pin to Quick access so it's always one click away.</p>
+  <table class="folders">
+    <tr><td>For AI &gt; Protected</td><td>Protected copies of your files, with names, emails, and IDs swapped for tokens like PERSON_0001. These are the only files you give to an AI tool.</td></tr>
+    <tr><td>For AI &gt; AI Output</td><td>Only for AI tools that can save files on your PC, like Claude's Cowork mode. Give that tool the <b>For AI</b> folder, never the whole PII Vault folder. Anything it saves here is restored automatically.</td></tr>
+    <tr><td>Restored</td><td>Your finished files with the real data put back. Private. Never upload anything from here to an AI tool.</td></tr>
+  </table>
+  <p>Your original files are never moved or changed. If a folder ever goes missing, PII Vault makes it again the next time it opens, and <b>Settings &gt; Folders &gt; Repair</b> fixes it on the spot.</p>
+</section>
+
+<section id="using">
+  <h2><span class="n">5</span> Using it</h2>
+  <ol>
+    <li><b>Drop a file onto PII Vault:</b> a spreadsheet, Word document, PDF, or text file. You can also paste text.</li>
+    <li><b>Check what it found.</b> For spreadsheets, each column gets an action (Tokenize, Year only, and so on). If your spreadsheet has report info above the table, like course title, term, and CRN, PII Vault finds where the real table starts and asks whether to remove that info (the default) or keep it with any names swapped for tokens. Tabs with no table, like assignment instructions, can be included as text or left out.</li>
+    <li><b>Type what the AI should do</b>, then click <span class="ui">Protect Files</span>.</li>
+    <li>Click <span class="ui">Copy Files</span>, click in your AI tool's message box and press <kbd>Ctrl</kbd>+<kbd>V</kbd>. Then click <span class="ui">Copy Prompt</span> and press <kbd>Ctrl</kbd>+<kbd>V</kbd> again. Send.</li>
+    <li><b>Download the AI's answer.</b> PII Vault spots it in your Downloads folder and puts the real data back by itself. The finished file goes in <b>PII Vault &gt; Restored</b>. You can also drag the file onto PII Vault, or use <b>Paste the AI's Answer</b> if the AI only shows text.</li>
+  </ol>
+  <div class="warn">Never upload anything from the Restored folder to an AI tool. Those files have the real names in them.</div>
+</section>
+
+<section id="updates">
+  <h2><span class="n">6</span> Updates</h2>
+  <p>PII Vault checks for a new version once a day when it opens. When there is one, you'll see <b>Update to 0.x</b> at the bottom of the sidebar. Open <b>Settings &gt; Updates</b> and click <span class="ui">Install Update</span>. PII Vault downloads the new version, checks it, installs it, and reopens. Your folders, settings, and jobs stay as they are.</p>
+  <div class="fig">
+    <svg viewBox="0 0 560 130" width="560" role="img" aria-label="Settings, Updates: Version ready to install, Install Update button">
+      <rect x="10" y="10" width="540" height="110" rx="12" fill="#fff" stroke="#e3e5ea"/>
+      <text x="32" y="44" font-size="16" font-weight="700" fill="#1d1d1f" font-family="Segoe UI, Arial">Updates</text>
+      <text x="528" y="44" font-size="12.5" text-anchor="end" fill="#5f6470" font-family="Segoe UI, Arial">This PC has version 0.4.0</text>
+      <circle cx="42" cy="84" r="9" fill="#2E5CB8"/>
+      <path d="M42 79 v8 M38 84 l4 4 l4 -4" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <text x="60" y="89" font-size="14.5" font-weight="600" fill="#2E5CB8" font-family="Segoe UI, Arial">Version 0.5.0 is ready to install.</text>
+      <rect x="396" y="66" width="136" height="36" rx="8" fill="#142142" stroke="#CE1126" stroke-width="3"/>
+      <text x="464" y="89" font-size="13.5" text-anchor="middle" font-weight="600" fill="#fff" font-family="Segoe UI, Arial">Install Update</text>
+    </svg>
+  </div>
+  <p class="cap">Settings &gt; Updates</p>
+</section>
+
+<section id="help">
+  <h2>Help</h2>
+  <h3>There's no Run anyway button</h3>
+  <p>Click <b>More info</b> first; the button only appears after that. If it's still missing, your PC is managed by IT and blocks unrecognized apps. Ask IT to allow PII-Vault-Setup.exe.</p>
+  <h3>A red bar says PII Vault can't use a folder</h3>
+  <p>Click <b>Repair</b>. If it comes back, click <b>Open Settings</b>. In Windows Security, under <b>Ransomware protection</b>, either turn off Controlled folder access or click <b>Allow an app through Controlled folder access</b> and add PII Vault. Then click Repair again.</p>
+  <h3>My AI's file didn't get restored</h3>
+  <p>Check that <b>Settings &gt; Restore files I download from my AI tool automatically</b> is on. Or just drag the downloaded file onto PII Vault; that always works.</p>
+  <h3>Copy Files didn't attach anything</h3>
+  <p>Some AI tools don't accept pasted files. Use the tool's attach (paperclip) button instead and pick the files from <b>Show Protected Files</b>.</p>
+  <h3>Uninstalling</h3>
+  <p>Open <b>Settings &gt; Apps &gt; Installed apps</b>, find PII Vault, and click <b>Uninstall</b>. Your PII Vault folder is kept, so delete it yourself if you no longer need it.</p>
+</section>
+
+<footer>PII Vault · Data Science for Student Success, University of Mississippi</footer>
+</main>
+</body>
+</html>
