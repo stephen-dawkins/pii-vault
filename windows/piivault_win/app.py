@@ -119,7 +119,7 @@ class Api:
         setup = engine.run("setup")
         cfg = engine.run("config")
         return {"version": version(), "config": cfg, "setup": setup, "home_dir": str(HOME_DIR),
-                "computer": "PC", "platform": "windows", "ui": self.ui.data,
+                "computer": "PC", "platform": "windows", "ui": self.ui.data, "app_data": str(app_data()),
                 "tools": {k: v[0] for k, v in AI_TOOLS.items()}}
 
     @_safe

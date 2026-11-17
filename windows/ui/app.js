@@ -18,7 +18,7 @@ const S = {
 const TOOL_NAMES = { chatgpt: "ChatGPT", copilot: "Copilot", gemini: "Gemini", claude: "Claude", other: "Other" };
 const CAT = { PERSON: "Name", EMAIL: "Email", PHONE: "Phone", SSN: "SSN", ID: "ID number", DOB: "Birth date",
   ADDRESS: "Address", ACCOUNT: "Account #", IP: "IP address", URL: "URL", OTHER: "Identifier" };
-const ACTIONS = [["token", "Tokenize"], ["year", "Year only"], ["scan", "Scan text"], ["keep", "Keep"], ["drop", "Remove"]];
+const ACTIONS = [["token", "🔒 Tokenize"], ["year", "📅 Year only"], ["scan", "🔍 Scan text"], ["keep", "👁 Keep as is"], ["drop", "✕ Remove"]];
 const KIND_LABEL = { table: "XLS", word: "DOC", pdf: "PDF", text: "TXT", unsupported: "?" };
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -40,6 +40,16 @@ const I = {
   folder: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.6l2 2h8.4A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/></svg>',
   down: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 7v8M8.5 11.5L12 15l3.5-3.5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/></svg>',
+  doc: '<svg viewBox="0 0 58 72" class="doc"><defs><linearGradient id="dg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a3f7a"/><stop offset="1" stop-color="#142142"/></linearGradient></defs><path d="M8 0h30l20 20v44a8 8 0 0 1-8 8H8a8 8 0 0 1-8-8V8a8 8 0 0 1 8-8z" fill="url(#dg)"/><path d="M38 0v12a8 8 0 0 0 8 8h12z" fill="#3d5596"/><path d="M29 34v20M20 46l9 9 9-9" stroke="#0e1730" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg>',
+  dl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13M6 11l6 6 6-6M4 21h16"/></svg>',
+  dlc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v8M8.5 12.5l3.5 3.5 3.5-3.5"/></svg>',
+  history: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 3"/></svg>',
+  shieldok: '<svg viewBox="0 0 24 24"><path d="M12 2l8.5 3.2v6.3c0 5-3.6 9.3-8.5 10.5C7.1 20.8 3.5 16.5 3.5 11.5V5.2z" fill="var(--green)"/><path d="M8 12.2l2.8 2.8L16.3 9" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  lock: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="10.5" width="14" height="10.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke="currentColor" stroke-width="2.2" fill="none"/></svg>',
+  grid: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="5" width="8" height="4" rx="1"/><rect x="13" y="5" width="8" height="4" rx="1"/><rect x="3" y="10.5" width="8" height="4" rx="1"/><rect x="13" y="10.5" width="8" height="4" rx="1"/><rect x="3" y="16" width="8" height="4" rx="1"/><rect x="13" y="16" width="8" height="4" rx="1"/></svg>',
+  xcirc: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="var(--faint)"/><path d="M9 9l6 6M15 9l-6 6" stroke="var(--card)" stroke-width="2" stroke-linecap="round"/></svg>',
+  chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
   warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.5"/></svg>',
 };
 
@@ -82,7 +92,10 @@ const INFO = {
   restore: ["Restoring a downloaded file", [
     "When the AI gives you a file to download, drop that file here (or choose it). PII Vault puts the real data back and saves the result to your private Restored folder.",
     "If the AI shows its answer as text instead of a file, use Paste the AI's Answer: paste it in and PII Vault saves a restored copy."]],
-  localmodel: ["Names in free text", [
+  updates: ["Updates", [
+    "PII Vault checks for a new version when it opens. When there is one, click Install Update: it downloads the new version, checks it, installs it, and reopens. Your folders, settings, and protected jobs stay as they are.",
+    "Because PII Vault isn't from the Microsoft Store, Windows may show \"Windows protected your PC\" once after an update. Click More info, then Run anyway."]],
+  localmodel: ["Local model", [
     "A small AI model that runs entirely on this PC, through the free Ollama app. PII Vault uses it to spot names that have no label in front of them (\"Met with Jasmine about...\"). Nothing is sent online. Without it, PII Vault still finds labeled names, emails, phones, IDs, and addresses."]],
 };
 const info = (k) => `<span class="infobtn" data-act="info" data-k="${k}" title="More info">i</span>`;
@@ -127,21 +140,30 @@ document.addEventListener("mousedown", (e) => { if (!e.target.closest("#pop") &&
 // ------------------------------------------------------------------ render
 function render() {
   renderNav(); renderBanner();
-  const page = { new: renderNew, restore: renderRestorePage, jobs: renderJobs, settings: renderSettings }[S.page];
+  const page = { new: renderNew, restore: renderJobs, jobs: renderJobs, settings: renderSettings }[S.page];
+  const flush = S.page === "jobs" || S.page === "restore";
+  $("#scroll").classList.toggle("flush", flush);
+  $("#page").classList.toggle("flush", flush);
   $("#page").innerHTML = page();
   renderSheet();
 }
 function renderNav() {
-  const items = [["new", "New Job", I.plus], ["restore", "Restore", I.restore], ["jobs", "Jobs", I.jobs], ["settings", "Settings", I.gear]];
-  $("#nav").innerHTML = items.map(([k, t, ic]) => `<a class="${S.page === k ? "sel" : ""}" data-act="nav" data-k="${k}">${ic}${t}</a>`).join("");
-  $("#side-version").textContent = S.boot ? "Version " + S.boot.version : "";
-  const local = S.cfg.use_local_model && S.ollama.state === "running" && S.models && S.models.catalog &&
-    (S.models.installed || []).some((m) => m === S.cfg.local_model || m === S.cfg.local_model + ":latest");
-  let st = `<span class="pill ${local ? "green" : ""}" title="How PII Vault finds names that have no label"><span class="dot"></span>${local ? "Names: local model" : "Names: rules only"}</span>`;
-  if (S.cfg.watch_downloads !== false) st += `<span class="pill blue"><span class="dot"></span>Restores AI downloads by itself</span>`;
+  const items = [["new", "New Job", I.plus], ["jobs", "Jobs", I.history], ["settings", "Settings", I.gear]];
+  const navPage = S.page === "restore" ? "jobs" : S.page;
+  $("#nav").innerHTML = items.map(([k, t, ic]) => `<a class="${navPage === k ? "sel" : ""}" data-act="nav" data-k="${k}">${ic}${t}</a>`).join("");
+  const local = localModelOn();
+  const ocr = S.doctor ? ({ "windows-ocr": "Windows OCR", tesseract: "Tesseract", none: "not installed" }[S.doctor.ocr_engine] || S.doctor.ocr_engine) : "checking";
+  let st = "";
   if (S.update && S.update.state === "available")
-    st += `<button class="btn small blue" data-act="nav" data-k="settings" style="margin-top:4px">${I.down}Update to ${esc(S.update.version)}</button>`;
+    st += `<button class="btn small blue" data-act="nav" data-k="settings" style="margin-bottom:8px">${I.down}Update to ${esc(S.update.version)}</button>`;
+  st += `<div class="side-card"><b><span class="gdot ${S.boot ? "" : "off"}"></span>${S.boot ? "Engine ready" : "Engine not set up"}</b>
+    <span>Names: ${local ? "local model" : "rules only"}</span><span>OCR: ${esc(ocr)}</span>
+    ${S.cfg.watch_downloads !== false ? "<span>Restores AI downloads by itself</span>" : ""}</div>`;
   $("#side-status").innerHTML = st;
+}
+function localModelOn() {
+  if (S.doctor && S.doctor.ner_engine) return S.doctor.ner_engine.startsWith("ollama");
+  return !!(S.cfg.use_local_model && S.ollama.state === "running" && hasModel());
 }
 function renderBanner() {
   const bad = ((S.boot && S.boot.setup && S.boot.setup.folders) || []).filter((f) => !f.ok);
@@ -153,68 +175,70 @@ function renderBanner() {
 
 // ---------------------------------------------------------------- New Job
 function stepBar() {
-  const order = ["add", "review", "sent"];
-  const at = order.indexOf(S.stage);
+  const at = { add: 0, review: 1, sent: 2 }[S.stage];
   const restored = S.stage === "sent" && S.results.length > 0;
-  const steps = [["Add files", 0], ["Review", 1], ["Send to AI", 2], ["Restore", 3]];
-  return `<div class="steps">${steps.map(([t, i], n) => {
-    const cls = i < at || (i === 2 && S.stage === "sent") || (i === 3 && restored) ? "done" : i === at || (i === 3 && S.stage === "sent" && !restored) ? "" : "";
-    const on = (i === at && S.stage !== "sent") || (S.stage === "sent" && i === 3 && !restored);
-    return (n ? '<span class="step-sep"></span>' : "") +
-      `<span class="step ${on ? "on" : cls}"><span class="n">${cls === "done" && !on ? "✓" : i + 1}</span>${t}</span>`;
+  const cur = S.stage === "sent" ? (restored ? 4 : 3) : at;
+  const steps = ["Add files", "Review", "Send to AI", "Restore"];
+  return `<div class="msteps">${steps.map((t, i) => {
+    const cls = i < cur ? "done" : i === cur ? "on" : "";
+    return (i ? `<span class="mline ${i <= cur ? "on" : ""}"></span>` : "") + `<span class="mstep ${cls}"><span class="c"></span>${t}</span>`;
   }).join("")}</div>`;
 }
 function renderNew() {
-  const head = `<div class="page-head"><h1>Protect files for AI</h1>
-    <p>Personal information is swapped for tokens on this PC. ${esc(toolName() === "your AI tool" ? "Your AI tool" : toolName())} only sees the tokens, and PII Vault puts the real data back in whatever it makes.</p></div>`;
+  const t = toolName();
+  const head = `<div class="page-title"><img src="icon.png" alt=""><div><h1>Protect files for AI</h1>
+    <p>Personal information is swapped for tokens on this PC. ${esc(t === "your AI tool" ? "Your AI tool" : t)} works with the tokens, and PII Vault puts the real data back in whatever it makes.</p></div></div>`;
   let body = "";
   if (S.stage === "add") body = addStage();
   else if (S.stage === "review") body = reviewStage();
   else body = sentStage();
   return head + stepBar() + body;
 }
-function addStage() {
-  return `<div class="drop" data-zone="protect">
-      ${I.tray}<div class="t">Drop a spreadsheet, document, PDF, or text file</div>
-      <div class="muted">CSV, Excel, Word, PDF (scanned pages are read on this PC), and plain text (.txt, .md, .rtf)</div>
-      <div class="row" style="margin-top:6px"><button class="btn primary" data-act="pick">Add files</button>
-      <button class="btn" data-act="paste-open">Paste text instead</button></div>
-    </div>
-    ${S.pasteOpen ? `<div class="card"><div class="card-head"><h2>Paste text instead</h2></div>
+function pasteCard() {
+  return S.pasteOpen ? `<div class="card"><div class="card-head"><h2>Paste text instead</h2></div>
       <p class="muted small" style="margin-bottom:8px">Notes, an email, a transcript: anything with names in it. It's treated like a text file and deleted from this PC after it's protected.</p>
       <textarea id="paste-text" rows="8" placeholder="Paste here"></textarea>
       <div class="row" style="margin-top:10px"><span class="spacer"></span><button class="btn" data-act="paste-cancel">Cancel</button>
-      <button class="btn primary" data-act="paste-go">Continue</button></div></div>` : ""}
-    <div class="card tight row">${I.shield.replace("<svg", '<svg style="width:22px;height:22px;color:var(--blue);flex:none"')}
-      <p class="muted small grow">Your original files are never moved or changed. Protected copies go in PII Vault > For AI > Protected, and the AI's work comes back restored to PII Vault > Restored. ${info("folders")}</p></div>`;
+      <button class="btn primary" data-act="paste-go">Continue</button></div></div>` : "";
+}
+function addStage() {
+  return `<div class="drop" data-zone="protect" style="padding:56px 24px">
+      ${I.doc}<div class="t" style="margin-top:14px">Drop a spreadsheet, document, PDF, or text file</div>
+      <div class="muted">CSV, Excel, Word, PDF (scanned pages are read on this PC), and plain text (.txt, .md, .rtf)</div>
+      <div class="links"><a data-act="pick">Choose Files…</a><span class="sep">·</span><a data-act="paste-open">Paste text instead</a></div>
+    </div>
+    ${pasteCard()}`;
 }
 
 // ---- review
 function reviewStage() {
   const files = (S.scan && S.scan.files) || [];
   const docs = files.some((f) => ["word", "pdf", "text"].includes(f.kind));
-  let out = "";
+  let out = `<div class="drop" data-zone="protect" style="padding:16px 24px;gap:4px">${I.doc.replace('class="doc"', 'style="width:24px;height:30px"')}
+    <div style="font-weight:650;font-size:15px">Drop more files</div>
+    <div class="links" style="font-size:15px;margin:0"><a data-act="pick">Choose Files…</a><span class="sep">·</span><a data-act="paste-open">Paste text instead</a></div></div>`;
+  out += pasteCard();
   if (docs) {
-    out += `<div class="card tight row"><label class="row grow" style="cursor:pointer">
-      <span class="switch"><input type="checkbox" data-act="toggle-review" ${S.scan.review ? "checked" : ""}><span></span></span>
-      <span>${S.scan.review ? "Review what PII Vault finds in documents before sending" : "Automatic: everything found is removed"}</span></label>${info("review")}</div>`;
+    out += `<div class="card tight row"><label class="chk grow" style="padding:0"><input type="checkbox" data-act="toggle-review" ${S.scan.review ? "checked" : ""}>
+      <span>Review what PII Vault finds in documents before sending</span></label>${info("review")}</div>`;
   }
   out += files.map(fileCard).join("");
   out += promptCard();
   return out;
 }
-function fileHead(f, extra = "") {
-  return `<div class="file-head"><div class="file-icon ${f.kind}">${KIND_LABEL[f.kind] || "?"}</div>
-    <div class="grow"><h3>${esc(f.name)}</h3><div class="muted small">${esc(fileSummary(f))}</div></div>${extra}
-    <button class="btn small link" data-act="remove-file" data-f="${esc(f.file)}">Remove</button></div>
+function fileHead(f) {
+  return `<div class="file-head"><div class="file-icon ${f.kind}">${f.kind === "table" ? I.grid : KIND_LABEL[f.kind] || "?"}</div>
+    <div class="grow"><h3 style="font-size:15px">${esc(f.name)}</h3><div class="muted">${esc(fileSummary(f))}</div></div>
+    <button class="xbtn" data-act="remove-file" data-f="${esc(f.file)}" title="Remove">${I.xcirc}</button></div>
     ${f.warning ? `<div class="note small" style="margin-top:10px">${esc(f.warning)}</div>` : ""}
     ${f.error ? `<div class="warn small" style="margin-top:10px">${esc(f.error)}</div>` : ""}`;
 }
 function fileSummary(f) {
   if (f.kind === "table" && f.sheets) {
     const t = f.sheets.filter((s) => s.kind === "table");
-    return t.length === 1 ? `${plural(t[0].rows, "row")}, ${plural(t[0].columns.length, "column")}` :
-      `${plural(f.sheets.length, "tab")}`;
+    const prot = t.reduce((n, sh) => n + sh.columns.filter((c) => !["keep", "drop"].includes(colAction(f, sh.name, c))).length, 0);
+    const rows = t.reduce((n, sh) => n + sh.rows, 0);
+    return `${rows} rows · ${plural(prot, "column")} will be protected${f.sheets.length > 1 ? ` · ${plural(f.sheets.length, "tab")}` : ""}`;
   }
   if (f.kind === "pdf") return `${plural(f.pages || 0, "page")}${f.scanned_pages ? `, ${f.scanned_pages} scanned` : ""}`;
   if (f.kind === "word") return plural(f.paragraphs || 0, "paragraph");
@@ -227,8 +251,8 @@ function fileCard(f) {
   return docCard(f);
 }
 function kindPill(c) {
-  if (c.category) return `<span class="pill ${c.category === "DOB" ? "amber" : "red"}">${CAT[c.category] || c.category}</span>`;
-  if (c.free_text) return `<span class="pill amber">Free text</span>`;
+  if (c.category) return `<span class="pill ${c.category === "DOB" ? "amber" : "red"}">🪪 ${CAT[c.category] || c.category}</span>`;
+  if (c.free_text) return `<span class="pill blue">☰ Free text</span>`;
   if (c.quasi) return `<span class="pill amber" title="Not a direct identifier, but combined with other columns it can point to one person.">Indirect</span>`;
   return `<span class="pill">None</span>`;
 }
@@ -247,12 +271,12 @@ function tableCard(f) {
       continue;
     }
     h += `<div class="sheet-name">${multi ? `<span>${esc(sh.name)}</span>` : ""}<span class="spacer"></span>${headerRowControl(f, sh)}</div>`;
-    h += `<table class="cols"><tr><th>Column</th><th>Sample</th><th>Found ${info("kinds")}</th><th>Action ${info("actions")}</th></tr>`;
+    h += `<table class="cols"><tr><th>Column</th><th>Detected ${info("kinds")}</th><th>Sample (masked)</th><th>Action ${info("actions")}</th></tr>`;
     for (const c of sh.columns) {
       const a = colAction(f, sh.name, c);
       h += `<tr class="${a === "drop" ? "dropped" : ""}"><td class="h" title="${esc(c.header)}">${esc(c.header || "(no name)")}</td>
-        <td class="s" title="${esc((c.preview || []).join(", "))}">${esc((c.preview || []).join(", "))}</td><td>${kindPill(c)}</td>
-        <td><select data-act="col-action" data-f="${esc(f.file)}" data-s="${esc(sh.name)}" data-h="${esc(c.header)}">
+        <td>${kindPill(c)}</td><td class="s" title="${esc((c.preview || []).join(", "))}">${esc((c.preview || []).join(", "))}</td>
+        <td><select class="act" data-act="col-action" data-f="${esc(f.file)}" data-s="${esc(sh.name)}" data-h="${esc(c.header)}">
         ${ACTIONS.filter(([k]) => k !== "year" || c.category === "DOB" || a === "year").map(([k, t]) => `<option value="${k}" ${a === k ? "selected" : ""}>${t}</option>`).join("")}
         </select></td></tr>`;
     }
@@ -302,14 +326,15 @@ function docCard(f) {
     <button class="btn" data-act="add-value" data-f="${esc(f.file)}">Add</button></div>`;
   return h + `</div>`;
 }
+function numHead(n, title, sub, extra = "") {
+  return `<div class="numhead"><span class="num">${n}</span><div class="grow"><h2>${title}</h2>${sub ? `<p class="muted">${sub}</p>` : ""}</div>${extra}</div>`;
+}
 function promptCard() {
-  return `<div class="card"><div class="card-head"><h2>What should the AI do?</h2></div>
-    <textarea id="prompt" rows="3" placeholder="e.g. Create an HTML dashboard from this spreadsheet">${esc(S.prompt)}</textarea>
-    <p class="muted small" style="margin-top:6px">PII Vault adds instructions so the AI keeps the tokens intact.</p>
-    <div class="row" style="margin-top:12px"><label class="check"><input type="checkbox" data-act="want-pdf" ${S.wantPdf ? "checked" : ""}><span>I need a PDF at the end</span></label>${info("pdf")}
-    <span class="spacer"></span><button class="btn" data-act="start-over">Start Over</button>
-    <button class="btn" data-act="pick">Add files</button>
-    <button class="btn primary big" data-act="protect">Protect Files</button></div></div>`;
+  return `<div class="card">${numHead(2, "What should the AI do?", "PII Vault adds instructions so the AI keeps the tokens intact.")}
+    <textarea id="prompt" rows="4" placeholder="e.g. Create an HTML dashboard from this spreadsheet">${esc(S.prompt)}</textarea>
+    <div class="row" style="margin-top:12px"><label class="chk"><input type="checkbox" data-act="want-pdf" ${S.wantPdf ? "checked" : ""}><span>I need a PDF at the end</span></label>${info("pdf")}</div>
+    <div class="row" style="margin-top:8px"><span class="spacer"></span>
+    <button class="btn primary big" data-act="protect">${I.shield.replace("<svg", '<svg style="width:18px;height:18px"')}Protect Files</button></div></div>`;
 }
 
 // ---- sent
@@ -323,41 +348,38 @@ function sentStage() {
   }
   const t = toolName();
   const files = j.files.filter((f) => !f.error);
-  const counts = (f) => { const r = f.replaced || {}; const n = Object.values(r).reduce((a, b) => a + (typeof b === "number" ? b : 0), 0); return n; };
-  let h = `<div class="card"><div class="row" style="gap:14px"><div class="big-check">${I.check}</div>
-      <div class="grow"><h2>Files protected and ready for ${esc(t)}</h2><p class="muted">Copy Files and paste into the message box, then Copy Prompt and paste. Send.</p></div>${info("copy")}</div>
-      <div class="divider"></div>
-      ${files.map((f) => `<div class="result"><div class="file-icon ${f.kind}">${KIND_LABEL[f.kind]}</div><div class="grow"><div class="name">${esc(f.sanitized_name)}</div>
-        <div class="muted small">from ${esc(base(f.source))} · ${plural(counts(f), "value")} swapped for tokens${(f.warnings || []).length ? " · " + esc(f.warnings.join(" ")) : ""}</div></div></div>`).join("")}
-      <div class="row wrap" style="margin-top:14px">
-        <button class="btn primary big" data-act="copy-files" id="b-copy-files">${I.copy}Copy Files</button>
-        <button class="btn primary big" data-act="copy-prompt" id="b-copy-prompt">${I.copy}Copy Prompt</button>
-        ${S.cfg.ai_tool && S.cfg.ai_tool !== "other" ? `<button class="btn big" data-act="open-tool">${I.open}Open ${esc(t)}</button>` : ""}
-        <span class="spacer"></span><button class="btn" data-act="reveal" data-p="${esc(j.sanitized_dir)}">Show Protected Files</button></div>
-      <details style="margin-top:12px"><summary class="muted small" style="cursor:pointer">See the prompt</summary><div class="prompt-box" style="margin-top:8px">${esc(j.cowork_prompt)}</div></details>
-    </div>`;
-  h += restoreSection(j.id);
-  h += `<div class="row"><span class="spacer"></span><button class="btn" data-act="start-over">New Job</button></div>`;
-  return h;
+  const counts = (f) => Object.values(f.replaced || {}).reduce((a, b) => a + (typeof b === "number" ? b : 0), 0);
+  const tool = S.cfg.ai_tool && S.cfg.ai_tool !== "other";
+  return `<div class="card"><div class="row" style="gap:16px;align-items:flex-start"><span style="width:44px;height:44px;flex:none">${I.shieldok}</span>
+      <div class="grow"><h2>Files protected and ready for ${esc(t)}</h2><p class="muted" style="font-size:15px">${esc(j.id)} · ${S.promptAutoCopied ? "The prompt is already on your clipboard." : "Copy the files and the prompt below."}</p></div></div>
+      ${files.map((f) => `<div class="row" style="margin-top:12px"><span style="width:22px;height:22px;color:var(--green)">${f.kind === "table" ? I.grid : I.plus}</span>
+        <span class="grow" style="font-weight:600;font-size:15px">${esc(f.sanitized_name)}</span>
+        <span class="pill green">${I.lock.replace("<svg", '<svg style="width:12px;height:12px"')} ${counts(f)} values protected</span></div>
+        ${(f.warnings || []).length ? `<div class="note small" style="margin-top:6px">${esc(f.warnings.join(" "))}</div>` : ""}`).join("")}
+    </div>
+    <div class="card">${numHead(3, `Paste into ${esc(t === "your AI tool" ? "your AI tool" : t)}`, "Copy Files and paste into the message box, then Copy Prompt and paste. Send.", info("copy"))}
+      <div class="row wrap"><button class="btn primary big" data-act="copy-files">${I.copy}Copy Files</button>
+        <button class="btn primary big" data-act="copy-prompt">${I.copy}Copy Prompt</button>
+        ${tool ? `<button class="btn big" data-act="open-tool">${I.open}Open ${esc(t)}</button>` : ""}</div>
+      <details class="disc"><summary>${I.chev}See the prompt</summary><div class="prompt-box" style="margin-top:8px">${esc(j.cowork_prompt)}</div></details>
+      <div class="row" style="margin-top:10px"><a data-act="reveal" data-p="${esc(j.sanitized_dir)}" class="row" style="gap:8px;font-size:15px">${I.folder.replace('fill="currentColor"', 'fill="none" stroke="currentColor" stroke-width="1.6" style="width:22px;height:22px"')}Show Protected Files</a>
+        <span class="spacer"></span><button class="btn" data-act="start-over">New Job</button></div></div>
+    ${restoreSection(j.id)}`;
 }
 function restoreSection(jobId) {
   const res = jobId ? S.results : S.restoreResults;
-  return `<div class="section-title">Put the real data back ${info("restore")}</div>
-    <div class="card"><div class="card-head"><h2>Restored results</h2><span class="sub">${esc(jobId || "")}</span></div>
-      ${res.length ? res.map(resultRow).join("") : `<p class="muted">Nothing yet. Drop the AI's file below and the restored copy shows up here.</p>`}
-      ${jobId && res.length ? `<p class="muted small" style="margin-top:8px">Follow-ups: ask the AI for a revised file and drop each new version here. Keep the same chat so it keeps the same tokens.</p>` : ""}
-    </div>
-    <div class="drop compact" data-zone="restore">
-      ${I.tray}<div class="t">Drop the AI's file here</div>
-      <div class="muted small">Usually in Downloads. Or <a data-act="pick-restore">choose a file</a>.</div>
-      ${S.cfg.watch_downloads !== false ? `<div class="pill blue" style="margin-top:4px"><span class="dot"></span>Restores AI downloads by itself</div>` : ""}
-      <div class="faint small">Also watching the AI Output folder, in case your AI saves there directly.</div>
-    </div>
-    <div class="card tight"><div class="row"><h3 class="grow">No file? Paste the AI's answer</h3>
-      <button class="btn small" data-act="answer-toggle">${S.answerOpen ? "Hide" : "Paste the AI's Answer"}</button></div>
-      ${S.answerOpen ? `<p class="muted small" style="margin:8px 0">Copy the AI's whole answer (or its HTML code) and paste it here. PII Vault saves a restored copy as HTML, CSV, or Markdown, depending on what you paste.</p>
-      <textarea id="answer-text" rows="7"></textarea><div class="row" style="margin-top:8px"><span class="spacer"></span>
-      <button class="btn primary" data-act="restore-text" data-j="${esc(jobId || "")}">Restore Pasted Answer</button></div>` : ""}
+  const t = toolName();
+  return `<div class="card">${numHead(4, "Put the real data back", `Drop the file ${esc(t === "your AI tool" ? "your AI tool" : t)} gives you below. The restored copy is saved in PII Vault › Restored.`)}
+      ${res.length ? `<div style="margin-bottom:10px">${res.map(resultRow).join("")}</div>` : ""}
+      <div class="drop compact row" data-zone="restore" style="flex-direction:row;text-align:left;padding:14px 18px;gap:14px">
+        <span style="width:28px;height:28px;color:var(--accent)">${I.dlc}</span>
+        <div><div style="font-weight:650;font-size:15px">Drop the AI's file here</div><div class="muted small">Usually in Downloads. Or <a data-act="pick-restore">choose it…</a></div></div>${info("restore")}</div>
+      ${res.length ? `<p class="muted small" style="margin-top:8px">Follow-ups: ask the AI for a revised file and drop each new version here. Keep the same chat so it keeps the same tokens.</p>` : ""}
+      <details class="disc" ${S.answerOpen ? "open" : ""}><summary data-act="answer-toggle">${I.chev}No file? Paste the AI's answer</summary>
+        <p class="muted small" style="margin:8px 0">Copy the AI's whole answer (or its HTML code) and paste it here. PII Vault saves a restored copy as HTML, CSV, or Markdown, depending on what you paste.</p>
+        <textarea id="answer-text" rows="6"></textarea><div class="row" style="margin-top:8px"><span class="spacer"></span>
+        <button class="btn primary" data-act="restore-text" data-j="${esc(jobId || "")}">Restore Pasted Answer</button></div></details>
+      <div class="row muted small" style="margin-top:10px"><div class="spinner" style="width:14px;height:14px;border-width:2px"></div>Also watching the AI Output folder, in case your AI saves there directly.</div>
     </div>`;
 }
 function resultRow(r) {
@@ -384,16 +406,18 @@ function renderRestorePage() {
 // ---------------------------------------------------------------- Jobs
 function renderJobs() {
   const jobs = S.jobs || [];
-  if (!jobs.length) return `<div class="page-head"><h1>Jobs</h1><p>Every set of files you protect becomes a job. Nothing yet.</p></div>`;
-  const sel = jobs.find((j) => j.id === S.selJob) || jobs[0];
-  const label = { sent: ["Sent", "blue"], complete: ["Restored", "green"], blocked: ["Stopped", "red"], ready: ["Ready", ""] };
-  return `<div class="page-head"><h1>Jobs</h1><p>Every set of files you protect, newest first.</p></div>
-    <div class="jobs"><div class="card tight" style="padding:6px">${jobs.map((j) => {
-      const [t, c] = label[j.status] || [j.status, ""];
-      return `<div class="job-item ${j.id === sel.id ? "sel" : ""}" data-act="sel-job" data-j="${esc(j.id)}">
-        <div class="row"><b class="grow" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc((j.files || []).map((f) => base(f.source)).join(", ") || j.id)}</b><span class="pill ${c}">${t}</span></div>
-        <div class="id">${esc(j.id)} · ${esc(fmtDate(j.created))}</div></div>`;
-    }).join("")}</div>${jobDetail(sel)}</div>`;
+  const label = { sent: ["With AI", "blue"], complete: ["Restored", "green"], blocked: ["Stopped", "red"], ready: ["Ready", ""] };
+  const sel = jobs.find((j) => j.id === S.selJob);
+  const list = jobs.length ? jobs.map((j) => {
+    const [t, c] = label[j.status] || [j.status, ""];
+    return `<div class="jrow ${sel && j.id === sel.id ? "sel" : ""}" data-act="sel-job" data-j="${esc(j.id)}"><div class="grow">
+      <div class="id">${esc(j.id)}</div><div class="p">${esc(j.prompt || (j.files || []).map((f) => base(f.source)).join(", "))}</div></div>
+      <span class="pill ${c}" style="align-self:flex-start">${t}</span></div>`;
+  }).join("") : `<div class="empty" style="height:auto;padding-top:80px">${I.history}No jobs yet</div>`;
+  return `<div class="split" data-zone="restore"><div class="list">
+      <div class="row" style="margin-bottom:6px"><div class="toolbar"><button data-act="pick-restore" title="Restore a file you downloaded from your AI tool">${I.dl}</button>
+      <button data-act="refresh-jobs" title="Check for new AI output and refresh">${I.refresh}</button></div></div>${list}</div>
+    <div class="detail">${sel ? jobDetail(sel) : `<div class="empty">${I.history}Select a job</div>`}</div></div>`;
 }
 function fmtDate(s) { try { return new Date(s).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }); } catch { return s; } }
 function jobDetail(j) {
@@ -419,47 +443,43 @@ function switchRow(key, title, sub, extra = "") {
   return `<label class="toggle-row" style="cursor:pointer"><span class="switch"><input type="checkbox" data-act="cfg-bool" data-k="${key}" ${S.cfg[key] !== false ? "checked" : ""}><span></span></span>
     <span class="grow"><b>${title}</b>${sub ? `<p>${sub}</p>` : ""}</span>${extra}</label>`;
 }
+function chk(key, label, extra = "") {
+  return `<label class="chk"><input type="checkbox" data-act="cfg-bool" data-k="${key}" ${S.cfg[key] !== false ? "checked" : ""}><span>${label}</span>${extra}</label>`;
+}
 function renderSettings() {
   const d = S.doctor || {};
   const folders = (S.boot && S.boot.setup && S.boot.setup.folders) || [];
   const fname = { sanitized_dir: "Protected files (what you give the AI)", claude_output_dir: "AI Output (for AI tools that save on your PC)", results_dir: "Restored results (private, never share with an AI tool)" };
-  const fcolor = { sanitized_dir: "#4a90e2", claude_output_dir: "#4a90e2", results_dir: "var(--red)" };
-  const ocr = { "windows-ocr": "Windows OCR (built into Windows)", tesseract: "Tesseract", "apple-vision": "Apple Vision OCR", none: "No OCR engine found" }[d.ocr_engine] || "Checking";
-  return `<div class="page-head"><h1>Settings</h1></div>
-    <div class="section-title">AI tool</div>
-    <div class="card"><div class="card-head"><h2>Which AI tool do you use?</h2></div>${toolPicker()}
-      <p class="muted small" style="margin-top:8px">This only sets the Open button. Protecting and restoring work the same with any tool.</p></div>
+  const ocr = { "windows-ocr": "Windows OCR", tesseract: "Tesseract", "apple-vision": "Apple Vision OCR", none: "No OCR engine found" }[d.ocr_engine] || "Checking";
+  const names = d.ner_engine ? (d.ner_engine.startsWith("ollama") ? `Local model (${d.ner_engine.slice(7)})` : "Rules only") : "Checking";
+  return `<h1 class="plain">Settings</h1>
+    <div class="card"><div class="mcard-title"><h2>Your AI tool</h2></div>${toolPicker()}</div>
 
-    <div class="section-title">Folders ${info("folders")}</div>
-    <div class="card"><div class="card-head"><h2>Where your files go</h2><span class="sub selectable mono">${esc(S.boot ? S.boot.home_dir : "")}</span></div>
-      ${folders.map((f) => `<div class="folder-row"><span style="color:${fcolor[f.key]}">${I.folder}</span><div class="grow"><b>${esc(fname[f.key] || f.name)}</b>
-        <div class="mono muted selectable" style="font-size:11.5px">${esc(f.path)}</div>${f.ok ? "" : `<div class="small" style="color:var(--red)">${esc(f.error || "Can't be used.")}</div>`}</div>
-        ${f.ok ? `<span class="pill green">OK</span>` : `<span class="pill red">Problem</span>`}<button class="btn small" data-act="reveal" data-p="${esc(f.path)}">Show</button></div>`).join("")}
-      <div class="row wrap" style="margin-top:12px"><button class="btn" data-act="repair">Repair</button><span class="muted small grow">Makes any missing folder again and checks each one can be saved to.</span>
-      <button class="btn" data-act="show-folder" data-k="home">Show PII Vault Folder</button></div>
-      <p class="faint small" style="margin-top:8px">Tip: in File Explorer, right-click the PII Vault folder and choose Pin to Quick access so it's always one click away.</p>
-      <div class="divider"></div>
-      ${switchRow("watch_downloads", "Restore files I download from my AI tool automatically (Downloads folder)", "PII Vault restores files you download from your AI tool (they have tokens in place of names), so you don't have to drag them in.")}
-    </div>
-
-    <div class="section-title">Names in free text ${info("localmodel")}</div>
     <div class="card">${localModelCard()}</div>
 
-    <div class="section-title">Review</div>
-    <div class="card">${switchRow("review_unstructured", "Review what PII Vault finds in Word, PDF, and text files", "Untick false alarms and add anything it missed before anything is sent. Spreadsheets always get the column review.", info("review"))}</div>
+    <div class="card"><div class="mcard-title"><h2>Detection</h2></div>
+      <div class="mrow"><span class="k">Names in free text</span><span class="v">${esc(names)}</span></div>
+      <div class="mrow"><span class="k">Scanned PDFs</span><span class="v">${esc(ocr)}</span></div>
+      ${chk("use_local_model", "Use the local model for names")}
+      ${chk("review_unstructured", "Review what PII Vault finds in Word, PDF, and text files", " " + info("review"))}</div>
 
-    <div class="section-title">Updates</div>
+    <div class="card"><div class="mcard-title"><h2>Folders</h2>${info("folders")}<span class="spacer"></span>
+      <button class="btn" data-act="show-folder" data-k="home">Show PII Vault Folder</button><button class="btn" data-act="repair">Repair</button></div>
+      ${folders.map((f) => `<div class="folder-row"><span class="okcirc ${f.ok ? "" : "bad"}">${f.ok ? I.check : "!"}</span><div class="grow"><div style="font-weight:600">${esc(fname[f.key] || f.name)}</div>
+        <div class="mono muted selectable" style="font-size:12px">${esc(f.path)}</div>${f.ok ? "" : `<div class="small" style="color:var(--red)">${esc(f.error || "Can't be used.")}</div>`}</div>
+        <button class="iconbtn" data-act="reveal" data-p="${esc(f.path)}" title="Show in File Explorer">${I.folder.replace('fill="currentColor"', 'fill="none" stroke="currentColor" stroke-width="1.6"')}</button></div>`).join("")}
+      ${chk("watch_downloads", "Restore files I download from my AI tool automatically (Downloads folder)")}
+      <p class="faint small" style="margin-top:6px">Tip: in File Explorer, right-click the PII Vault folder and choose Pin to Quick access so it's always one click away.</p></div>
+
     <div class="card">${updateCard()}</div>
 
-    <div class="section-title">Privacy</div>
-    <div class="card"><div class="kv">
-      <span class="k">Vault encryption</span><span>AES (Fernet), key in Windows Credential Manager</span>
-      <span class="k">Scanned pages</span><span>${esc(ocr)}</span>
-      <span class="k">Names</span><span>${d.ner_engine ? esc(d.ner_engine.startsWith("ollama") ? "Local model (" + d.ner_engine.slice(7) + ")" : d.ner_engine === "none" ? "Rules only" : d.ner_engine) : "Checking"}</span>
-      <span class="k">Engine</span><span>${d.version ? `Version ${esc(d.version)}, Python ${esc(d.python)}` : "Checking"}</span></div>
-      ${(d.warnings || []).map((w) => `<div class="note small" style="margin-top:10px">${esc(w)}</div>`).join("")}
-      <div class="row" style="margin-top:12px"><span class="muted small grow">Everything runs on this PC. The vault that maps tokens back to real values never leaves it.</span>
-      <button class="btn" data-act="welcome-again">Show Welcome Again</button></div></div>`;
+    <div class="card"><div class="mcard-title"><h2>About</h2></div>
+      <div class="mrow"><span class="k">Engine version</span><span class="v">${esc(d.version || (S.boot && S.boot.version) || "")}</span></div>
+      <div class="mrow"><span class="k">Python</span><span class="v">${d.python ? esc(d.python) + " (built in)" : ""}</span></div>
+      <div class="mrow"><span class="k">Vault encryption</span><span class="v">AES (Fernet), key in Windows Credential Manager</span></div>
+      <div class="mrow"><span class="k">Vault location</span><span class="v selectable">${esc(S.boot && S.boot.app_data || "")}</span></div>
+      ${(d.warnings || []).map((w) => `<div class="note small" style="margin-top:10px">${esc(w)}</div>`).join("")}</div>
+    <div class="row"><button class="btn" data-act="recheck">Re-check</button><button class="btn" data-act="welcome-again">Show Welcome Again</button></div>`;
 }
 function updateCard() {
   const u = S.update || {};
@@ -470,41 +490,40 @@ function updateCard() {
     body = p.error ? `<div class="warn small">${esc(p.error)}</div>` : p.installing ? `<div class="row"><div class="spinner" style="width:18px;height:18px;border-width:2px"></div><b>Installing. PII Vault will reopen by itself.</b></div>` :
       `<div class="col"><b>Downloading the update</b><div class="progress"><div style="width:${Math.round((p.fraction || 0) * 100)}%"></div></div></div>`;
   } else if (u.state === "available") {
-    body = `<div class="row"><span style="color:var(--blue);width:20px;height:20px">${I.down}</span><b style="color:var(--blue)" class="grow">Version ${esc(u.version)} is ready to install.</b>
+    body = `<div class="row"><span style="color:var(--accent);width:20px;height:20px">${I.down}</span><b style="color:var(--accent)" class="grow">Version ${esc(u.version)} is ready to install.</b>
       <button class="btn primary" data-act="update-install">Install Update</button></div>`;
   } else if (u.state === "error") {
-    body = `<div class="row"><span class="grow muted">${esc(u.message)}</span><button class="btn" data-act="update-check">Check for Updates</button></div>`;
+    body = `<div class="row"><span class="grow muted">${esc(u.message)}</span><button class="btn" data-act="update-check">Check Again</button></div>`;
   } else {
-    body = `<div class="row"><span class="grow"><b>You have the latest version.</b><br><span class="muted small">PII Vault checks for updates once a day when it opens.</span></span>
-      <button class="btn" data-act="update-check">Check for Updates</button></div>`;
+    body = `<div class="row"><span class="okcirc">${I.check}</span><span class="grow" style="color:var(--green);font-size:15px">You have the latest version.</span>
+      <button class="btn" data-act="update-check">Check Again</button></div>`;
   }
-  return `<div class="card-head"><h2>Updates</h2><span class="sub">This PC has version ${esc(cur)}</span></div>${body}
-    <p class="muted small" style="margin-top:10px">When there is a new version, click Install Update: it downloads the new version, checks it, swaps it in, and reopens. Your folders, settings, and protected jobs stay as they are.</p>`;
+  return `<div class="mcard-title"><h2>Updates</h2>${info("updates")}<span class="spacer"></span><span class="muted small">This PC has version ${esc(cur)}</span></div>${body}`;
 }
 
 // ---- local model card (Settings) and Ollama setup (Welcome + Settings)
 function localModelCard() {
   const m = S.models || {};
   const running = S.ollama.state === "running";
-  let h = switchRow("use_local_model", "Use the local model for names", "A small AI model that runs entirely on this PC, through the free Ollama app. Without it, PII Vault still finds labeled names, emails, phones, IDs, and addresses.",
-    `<span class="pill ${running ? "green" : "amber"}"><span class="dot"></span>${running ? "Ollama running" : "Ollama not running"}</span>`);
-  h += `<div class="divider"></div>`;
-  if (!running) return h + `<p class="muted small" style="margin-bottom:10px">Once Ollama is running, choose a model here.</p>` + ollamaSetup(true);
+  let h = `<div class="mcard-title"><h2>Local model</h2>${info("localmodel")}<span class="spacer"></span>
+    <span class="pill ${running ? "green" : "amber"}">${running ? "✓ Ollama running" : "Ollama not running"}</span></div>`;
+  if (!running) return h + `<p class="muted" style="margin-bottom:10px">Once Ollama is running, choose a model here.</p>` + ollamaSetup(true);
   const cat = m.catalog || [];
-  h += `<p class="muted small" style="margin-bottom:8px">Choose a model. Only these are offered, to keep downloads small.</p><div class="col">`;
+  h += `<p class="muted" style="margin-bottom:6px">Choose a model. Only these are offered, to keep downloads small.</p>`;
   for (const c of cat) {
     const on = S.cfg.local_model === c.name;
     const pulling = S.ollama.pull && S.ollama.pull.model === c.name;
-    h += `<label class="model ${on ? "on" : ""}"><input type="radio" name="model" data-act="model" data-k="${esc(c.name)}" ${on ? "checked" : ""} ${c.installed ? "" : "disabled"}>
-      <div class="grow"><div class="row" style="gap:8px"><b>${esc(c.title)}</b>${c.recommended ? `<span class="pill navy">Recommended</span>` : ""}
-      ${c.installed ? `<span class="pill green">Downloaded</span>` : ""}</div><div class="muted small">${esc(c.blurb.replace("Macs", "PCs"))} ${c.size_gb.toFixed(1)} GB download, needs ${c.ram_gb} GB of memory.</div>
+    h += `<div class="model ${on && c.installed ? "on" : ""}" ${c.installed ? `data-act="model" data-k="${esc(c.name)}"` : ""}>
+      <span style="color:var(--accent);opacity:${c.installed ? 1 : .45}">${on && c.installed ? I.check.replace("<svg", '<svg style="width:18px;height:18px"') : '<svg viewBox="0 0 24 24" style="width:18px;height:18px" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>'}</span>
+      <div class="grow"><div class="row" style="gap:8px"><b>${esc(c.title)}</b>${c.recommended ? `<span class="pill blue">Recommended</span>` : ""}</div>
+      <div class="muted small">${esc(c.blurb.replace("Macs", "PCs"))}</div><div class="faint small">${c.size_gb.toFixed(1)} GB download · ${c.ram_gb} GB+ memory</div>
       ${pulling ? `<div class="progress" style="margin-top:6px"><div style="width:${Math.round(S.ollama.pull.fraction * 100)}%"></div></div>` : ""}</div>
-      ${c.installed ? "" : `<button class="btn small" data-act="pull" data-k="${esc(c.name)}" ${S.ollama.pull ? "disabled" : ""}>${pulling ? Math.round(S.ollama.pull.fraction * 100) + "%" : "Download"}</button>`}</label>`;
+      ${c.installed ? (on ? `<span class="pill green">In use</span>` : `<button class="btn small" data-act="model" data-k="${esc(c.name)}">Use</button>`) :
+        `<button class="btn dlbtn" data-act="pull" data-k="${esc(c.name)}" ${S.ollama.pull ? "disabled" : ""}>${I.dlc}${pulling ? Math.round(S.ollama.pull.fraction * 100) + "%" : "Download " + c.size_gb.toFixed(1) + " GB"}</button>`}</div>`;
   }
-  h += `</div>`;
   const others = (m.installed || []).filter((n) => !cat.some((c) => c.name === n || c.name + ":latest" === n));
-  if (others.length) h += `<div class="row" style="margin-top:10px"><span class="muted small">Or use a model you already have</span>
-    <select data-act="model-select"><option value="">Choose</option>${others.map((n) => `<option ${S.cfg.local_model === n ? "selected" : ""}>${esc(n)}</option>`).join("")}</select></div>`;
+  if (others.length) h += `<div class="row" style="margin-top:10px"><span>Or use a model you already have</span>
+    <select data-act="model-select" style="min-width:240px"><option value="">Choose</option>${others.map((n) => `<option ${S.cfg.local_model === n ? "selected" : ""}>${esc(n)}</option>`).join("")}</select></div>`;
   if (S.ollama.error) h += `<div class="warn small" style="margin-top:10px">${esc(S.ollama.error)}</div>`;
   return h;
 }
@@ -655,6 +674,7 @@ const A = {
     try {
       const job = await call("sanitize", S.files, S.prompt, plan, S.wantPdf, false);
       S.job = job; S.results = []; S.stage = "sent";
+      S.promptAutoCopied = job.status !== "blocked" && !!(await api().copy_text(job.cowork_prompt)).ok;
       for (const p of S.pastes) call("forget_paste", p);
       S.pastes = [];
       loadJobs();
@@ -675,9 +695,9 @@ const A = {
   async "show-folder"(el) { await tryCall("show_folder", el.dataset.k); },
   async "pick-restore"() {
     const r = await tryCall("choose_files", "restore");
-    if (r && r.files.length) restoreFiles(r.files);
+    if (r && r.files.length) restoreFiles(r.files, S.page === "jobs" ? (S.selJob || null) : undefined);
   },
-  "answer-toggle"() { S.answerOpen = !S.answerOpen; render(); },
+  "answer-toggle"() { S.answerOpen = !S.answerOpen; },
   async "restore-text"(el) {
     const t = ($("#answer-text").value || "").trim();
     if (!t) return;
@@ -701,6 +721,12 @@ const A = {
     render();
   },
   "sel-job"(el) { S.selJob = el.dataset.j; render(); },
+  async "refresh-jobs"() {
+    const r = await tryCall("process_outputs");
+    if (r && (r.processed || []).length) App.onProcessed(r.processed);
+    await loadJobs(); render();
+  },
+  async recheck() { busy("Setting up"); const r = await tryCall("repair"); if (r) S.boot.setup = r; await loadDoctor(); await loadModels(); busy(""); render(); },
   async "job-copy-files"(el) {
     const r = await tryCall("copy_files", el.dataset.p);
     if (r) toast(`${plural(r.count, "file")} copied. Click in ${toolName()}'s message box and press Ctrl+V.`);
@@ -781,7 +807,7 @@ document.addEventListener("click", (e) => {
   const el = e.target.closest("[data-act]");
   if (!el || el.tagName === "SELECT" || (el.tagName === "INPUT" && el.type !== "button")) return;
   const fn = A[el.dataset.act];
-  if (fn) { e.preventDefault(); fn(el); }
+  if (fn) { if (el.tagName !== "SUMMARY") e.preventDefault(); fn(el); }
 });
 document.addEventListener("change", (e) => {
   const el = e.target.closest("[data-act]");
@@ -867,7 +893,7 @@ async function restoreFiles(paths, jobOverride) {
   busy(""); render();
 }
 function addResults(items, job) {
-  const target = job ? S.results : S.restoreResults;
+  const target = job && S.job && job === S.job.id ? S.results : S.restoreResults;
   for (const it of items) {
     const i = target.findIndex((x) => x.file && x.file === it.file);
     if (i >= 0) target[i] = it; else target.unshift(it);
@@ -898,7 +924,7 @@ function watchOllama() {
 // ------------------------------------------------------------------ pushed from Python
 window.App = {
   onDrop(paths) {
-    const zone = hotZone || (S.page === "restore" || (S.page === "new" && S.stage === "sent") ? "restore" : "protect");
+    const zone = hotZone || (S.page === "restore" || S.page === "jobs" || (S.page === "new" && S.stage === "sent") ? "restore" : "protect");
     hotZone = null;
     if (S.welcome) return;
     if (zone === "restore") restoreFiles(paths);
