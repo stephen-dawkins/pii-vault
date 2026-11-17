@@ -68,3 +68,51 @@ def reveal(path: str) -> None:
 
 def open_url(url: str) -> None:
     webbrowser.open(url)
+
+
+def read_text() -> str | None:
+    """The clipboard's text, or None (no text, or the clipboard is busy)."""
+    if not IS_WINDOWS:
+        return None
+    import win32clipboard
+    import win32con
+    try:
+        win32clipboard.OpenClipboard()
+    except Exception:
+        return None
+    try:
+        if win32clipboard.IsClipboardFormatAvailable(win32con.CF_UNICODETEXT):
+            return win32clipboard.GetClipboardData(win32con.CF_UNICODETEXT)
+        return None
+    except Exception:
+        return None
+    finally:
+        try:
+            win32clipboard.CloseClipboard()
+        except Exception:
+            pass
+
+
+def clipboard_sequence() -> int:
+    """Changes every time anything is copied; cheap to check."""
+    if not IS_WINDOWS:
+        return 0
+    import ctypes
+    return ctypes.windll.user32.GetClipboardSequenceNumber()
+
+
+def flash_window(title: str) -> None:
+    """Flash PII Vault's taskbar button so the person notices it while they're in their browser."""
+    if not IS_WINDOWS:
+        return
+    import ctypes
+    from ctypes import wintypes
+
+    class FLASHWINFO(ctypes.Structure):
+        _fields_ = [("cbSize", wintypes.UINT), ("hwnd", wintypes.HWND), ("dwFlags", wintypes.DWORD),
+                    ("uCount", wintypes.UINT), ("dwTimeout", wintypes.DWORD)]
+
+    hwnd = ctypes.windll.user32.FindWindowW(None, title)
+    if hwnd:
+        info = FLASHWINFO(ctypes.sizeof(FLASHWINFO), hwnd, 0x3 | 0xC, 5, 0)  # all, until focused
+        ctypes.windll.user32.FlashWindowEx(ctypes.byref(info))

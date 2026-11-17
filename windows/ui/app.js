@@ -13,7 +13,7 @@ const S = {
   prompt: "", wantPdf: false, job: null, results: [], restoreResults: [],
   jobs: [], selJob: null, doctor: null, models: null,
   ollama: { state: "checking", started: false, opening: false, skipped: false, pull: null, error: null },
-  update: null, updateProg: null, pasteOpen: false, answerOpen: false, welcome: false,
+  update: null, updateProg: null, pasteOpen: false, answerOpen: false, welcome: false, ui: {},
 };
 const TOOL_NAMES = { chatgpt: "ChatGPT", copilot: "Copilot", gemini: "Gemini", claude: "Claude", other: "Other" };
 const CAT = { PERSON: "Name", EMAIL: "Email", PHONE: "Phone", SSN: "SSN", ID: "ID number", DOB: "Birth date",
@@ -361,6 +361,7 @@ function sentStage() {
       <div class="row wrap"><button class="btn primary big" data-act="copy-files">${I.copy}Copy Files</button>
         <button class="btn primary big" data-act="copy-prompt">${I.copy}Copy Prompt</button>
         ${tool ? `<button class="btn big" data-act="open-tool">${I.open}Open ${esc(t)}</button>` : ""}</div>
+      ${S.cfg.ai_tool === "claude" ? `<div class="info small" style="margin-top:12px"><b>Skip the download with Claude:</b> in the Claude desktop app, connect the <b>PII Vault › For AI</b> folder to your chat (Cowork mode). Claude reads the protected files from there and saves its answer into For AI › AI Output, and PII Vault restores it by itself. <a data-act="show-folder" data-k="forai">Show the For AI folder</a></div>` : ""}
       <details class="disc"><summary>${I.chev}See the prompt</summary><div class="prompt-box" style="margin-top:8px">${esc(j.cowork_prompt)}</div></details>
       <div class="row" style="margin-top:10px"><a data-act="reveal" data-p="${esc(j.sanitized_dir)}" class="row" style="gap:8px;font-size:15px">${I.folder.replace('fill="currentColor"', 'fill="none" stroke="currentColor" stroke-width="1.6" style="width:22px;height:22px"')}Show Protected Files</a>
         <span class="spacer"></span><button class="btn" data-act="start-over">New Job</button></div></div>
@@ -374,12 +375,13 @@ function restoreSection(jobId) {
       <div class="drop compact row" data-zone="restore" style="flex-direction:row;text-align:left;padding:14px 18px;gap:14px">
         <span style="width:28px;height:28px;color:var(--accent)">${I.dlc}</span>
         <div><div style="font-weight:650;font-size:15px">Drop the AI's file here</div><div class="muted small">Usually in Downloads. Or <a data-act="pick-restore">choose it…</a></div></div>${info("restore")}</div>
+      ${S.ui.clipboard_watch !== false ? `<p class="muted small" style="margin-top:8px">No file? Just copy the AI's answer (its copy button) and PII Vault offers to restore it.</p>` : ""}
       ${res.length ? `<p class="muted small" style="margin-top:8px">Follow-ups: ask the AI for a revised file and drop each new version here. Keep the same chat so it keeps the same tokens.</p>` : ""}
       <details class="disc" ${S.answerOpen ? "open" : ""}><summary data-act="answer-toggle">${I.chev}No file? Paste the AI's answer</summary>
         <p class="muted small" style="margin:8px 0">Copy the AI's whole answer (or its HTML code) and paste it here. PII Vault saves a restored copy as HTML, CSV, or Markdown, depending on what you paste.</p>
         <textarea id="answer-text" rows="6"></textarea><div class="row" style="margin-top:8px"><span class="spacer"></span>
         <button class="btn primary" data-act="restore-text" data-j="${esc(jobId || "")}">Restore Pasted Answer</button></div></details>
-      <div class="row muted small" style="margin-top:10px"><div class="spinner" style="width:14px;height:14px;border-width:2px"></div>Also watching the AI Output folder, in case your AI saves there directly.</div>
+      <div class="row muted small" style="margin-top:10px"><span class="live-dot"></span>Watching for the AI's file in Downloads and in the AI Output folder (for AI tools that save there directly).</div>
     </div>`;
 }
 function resultRow(r) {
@@ -469,6 +471,7 @@ function renderSettings() {
         <div class="mono muted selectable" style="font-size:12px">${esc(f.path)}</div>${f.ok ? "" : `<div class="small" style="color:var(--red)">${esc(f.error || "Can't be used.")}</div>`}</div>
         <button class="iconbtn" data-act="reveal" data-p="${esc(f.path)}" title="Show in File Explorer">${I.folder.replace('fill="currentColor"', 'fill="none" stroke="currentColor" stroke-width="1.6"')}</button></div>`).join("")}
       ${chk("watch_downloads", "Restore files I download from my AI tool automatically (Downloads folder)")}
+      <label class="chk"><input type="checkbox" data-act="ui-bool" data-k="clipboard_watch" ${S.ui.clipboard_watch !== false ? "checked" : ""}><span>Offer to restore AI answers I copy (clipboard)</span></label>
       <p class="faint small" style="margin-top:6px">Tip: in File Explorer, right-click the PII Vault folder and choose Pin to Quick access so it's always one click away.</p></div>
 
     <div class="card">${updateCard()}</div>
@@ -746,6 +749,24 @@ const A = {
     S.cfg.ai_tool = el.dataset.k; render();
     await tryCall("config_set", "ai_tool", el.dataset.k);
   },
+  async "ui-bool"(el) {
+    S.ui[el.dataset.k] = el.checked; render();
+    await tryCall("ui_set", el.dataset.k, el.checked);
+  },
+  async "clip-restore"() {
+    const job = (S.page === "new" && S.stage === "sent" && S.job) ? S.job.id :
+      ((S.jobs || []).find((j) => ["sent", "complete"].includes(j.status)) || {}).id || null;
+    $("#clipcard").innerHTML = "";
+    busy("Putting the real data back");
+    try {
+      const r = await call("restore_clipboard", job);
+      addResults(r.processed || [], job);
+      const ok = (r.processed || []).find((x) => !x.error);
+      if (ok && !(S.page === "new" && S.stage === "sent")) toast(`Restored ${base(ok.file)}. Saved in PII Vault > Restored.`, "good");
+    } catch (e) { toast(e.message, "err"); }
+    busy(""); render();
+  },
+  async "clip-dismiss"() { $("#clipcard").innerHTML = ""; await tryCall("dismiss_clipboard"); },
   async "cfg-bool"(el) {
     S.cfg[el.dataset.k] = el.checked; render();
     await tryCall("config_set", el.dataset.k, el.checked);
@@ -937,6 +958,16 @@ window.App = {
     }
     render();
   },
+  onClipboardAnswer(c) {
+    if (S.welcome) return;
+    $("#clipcard").innerHTML = `<div class="clipcard"><div class="row" style="align-items:flex-start;gap:12px">
+      <span style="width:26px;height:26px;color:var(--accent);flex:none">${I.restore}</span>
+      <div class="grow"><b>Restore the AI answer you copied?</b>
+      <div class="muted small">${plural(c.tokens, "token")} found · ${c.chars.toLocaleString()} characters</div>
+      <div class="small clip-preview">${esc(c.preview)}</div></div></div>
+      <div class="row" style="margin-top:12px"><span class="spacer"></span><button class="btn" data-act="clip-dismiss">Not Now</button>
+      <button class="btn primary" data-act="clip-restore">Restore</button></div></div>`;
+  },
   onPullProgress(p) { S.ollama.pull = { model: p.model, fraction: p.fraction || 0 }; render(); },
   async onPullDone(p) {
     S.ollama.pull = null;
@@ -957,6 +988,7 @@ async function start() {
   try {
     S.boot = await call("boot");
     S.cfg = S.boot.config || {};
+    S.ui = S.boot.ui || {};
     S.welcome = !(S.boot.ui && S.boot.ui.welcome_done);
   } catch (e) {
     busy(""); $("#page").innerHTML = `<div class="card warn"><h2>Engine not set up</h2><p>${esc(e.message)}</p></div>`; return;

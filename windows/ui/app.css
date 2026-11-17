@@ -342,3 +342,9 @@ details.disc[open] summary svg { transform: rotate(90deg); }
 .split .detail .card-head .sub { margin-left: 0; width: 100%; }
 .split .detail .result { flex-wrap: wrap; }
 .split .detail .result .grow { min-width: 60%; }
+
+.live-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); flex: none; box-shadow: 0 0 0 3px var(--green-soft); }
+
+.clipcard { position: fixed; right: 22px; bottom: 22px; width: 380px; z-index: 65; background: var(--card); border: 1px solid var(--line-2);
+  border-radius: 14px; padding: 16px 18px; box-shadow: 0 16px 50px rgba(0,0,0,.28); animation: tin .18s ease-out; }
+.clip-preview { margin-top: 6px; color: var(--muted); font-family: var(--mono); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

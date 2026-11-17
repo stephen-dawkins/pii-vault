@@ -99,6 +99,8 @@ class Api:
         self.engine_lock = threading.Lock()   # one restore pass at a time
         self.update_info: dict | None = None
         self.pulling = False
+        self.own_clipboard: str | None = None
+        self.clip_text: str | None = None
 
     # ------------------------------------------------------------ helpers
     def _push(self, fn: str, payload) -> None:
@@ -209,6 +211,21 @@ class Api:
     @_safe
     def copy_text(self, text: str):
         winutil.copy_text(text)
+        self.own_clipboard = text
+        return {"ok": True}
+
+    @_safe
+    def restore_clipboard(self, job: str | None = None):
+        """Restore the AI answer the clipboard watcher found."""
+        text = self.clip_text
+        if not text:
+            return {"error": "The copied answer is no longer available. Copy it again."}
+        self.clip_text = None
+        return self.restore_text(text, job or None)
+
+    @_safe
+    def dismiss_clipboard(self):
+        self.clip_text = None
         return {"ok": True}
 
     @_safe
@@ -436,6 +453,44 @@ class Watcher(threading.Thread):
             time.sleep(self.interval)
 
 
+TOKEN_RE = re.compile(r"(?<![A-Za-z0-9_])(PERSON|EMAIL|PHONE|SSN|ID|DOB|ADDRESS|ACCOUNT|IP|URL|OTHER)_\d{4,6}(?![0-9])")
+
+
+class ClipboardWatcher(threading.Thread):
+    """When the person copies an AI answer that has PII Vault tokens in it (PERSON_0001...),
+    offer to restore it. Only the clipboard's text is looked at, only on this PC, and only
+    for PII Vault's own token pattern; nothing is stored unless the person clicks Restore."""
+
+    def __init__(self, api: Api, interval: float = 1.0):
+        super().__init__(daemon=True)
+        self.api, self.interval, self.seq = api, interval, None
+
+    def run(self):
+        time.sleep(3)
+        self.seq = winutil.clipboard_sequence()
+        while True:
+            time.sleep(self.interval)
+            try:
+                if self.api.ui.get("clipboard_watch", True) is False:
+                    continue
+                seq = winutil.clipboard_sequence()
+                if seq == self.seq:
+                    continue
+                self.seq = seq
+                text = winutil.read_text()
+                if not text or len(text) < 20 or text == self.api.own_clipboard or "[PII Vault job" in text:
+                    continue
+                tokens = {m.group(0) for m in TOKEN_RE.finditer(text)}
+                if not tokens:
+                    continue
+                self.api.clip_text = text
+                first = next((l.strip() for l in text.splitlines() if l.strip()), "")
+                self.api._push("onClipboardAnswer", {"tokens": len(tokens), "chars": len(text), "preview": first[:140]})
+                winutil.flash_window(APP_NAME)
+            except Exception:
+                traceback.print_exc()
+
+
 # ---------------------------------------------------------------- start
 def _single_instance() -> bool:
     if sys.platform != "win32":
@@ -482,6 +537,7 @@ def main():
 
     window.events.loaded += on_loaded
     Watcher(api).start()
+    ClipboardWatcher(api).start()
     storage = app_data() / "webview"
     webview.start(gui="edgechromium" if sys.platform == "win32" else None, private_mode=False,
                   storage_path=str(storage), debug=bool(os.environ.get("PIIVAULT_DEBUG")))
