@@ -188,8 +188,9 @@
     <li><b>Check what it found.</b> For spreadsheets, each column gets an action (Tokenize, Year only, and so on). If your spreadsheet has report info above the table, like course title, term, and CRN, PII Vault finds where the real table starts and asks whether to remove that info (the default) or keep it with any names swapped for tokens. Tabs with no table, like assignment instructions, can be included as text or left out.</li>
     <li><b>Type what the AI should do</b>, then click <span class="ui">Protect Files</span>.</li>
     <li>Click <span class="ui">Copy Files</span>, click in your AI tool's message box and press <kbd>Ctrl</kbd>+<kbd>V</kbd>. Then click <span class="ui">Copy Prompt</span> and press <kbd>Ctrl</kbd>+<kbd>V</kbd> again. Send.</li>
-    <li><b>Download the AI's answer.</b> PII Vault spots it in your Downloads folder and puts the real data back by itself. The finished file goes in <b>PII Vault &gt; Restored</b>. You can also drag the file onto PII Vault, or use <b>Paste the AI's Answer</b> if the AI only shows text.</li>
+    <li><b>Download the AI's answer.</b> PII Vault spots it in your Downloads folder and puts the real data back by itself. The finished file goes in <b>PII Vault &gt; Restored</b>. You can also drag the file onto PII Vault. If the AI only shows text, click its copy button: PII Vault notices and asks <b>Restore the AI answer you copied?</b> Click <span class="ui">Restore</span>.</li>
   </ol>
+  <div class="ok"><b>Using the Claude desktop app?</b> Skip the download: connect the <b>PII Vault &gt; For AI</b> folder to your chat (Cowork mode). Claude reads the protected files there and saves its answer into For AI &gt; AI Output, and PII Vault restores it by itself. Give Claude the For AI folder only, never the whole PII Vault folder.</div>
   <div class="warn">Never upload anything from the Restored folder to an AI tool. Those files have the real names in them.</div>
 </section>
 
