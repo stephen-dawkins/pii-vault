@@ -375,14 +375,16 @@ def build_prompt(user_prompt: str, job_id: str, files: list[str], want_pdf: bool
         user_prompt.strip(),
         "",
         f"[PII Vault job {job_id}] Use the attached file(s): {names}. "
-        f"(If nothing is attached and you can read files on my computer, they are in `{sdir}/`.)",
+        f"(If nothing is attached and you are working directly in my files, they are in `{sdir}/`.)",
         "Personal information in them was replaced with tokens like PERSON_0001, EMAIL_0003, ID_0012. Birth dates are years only.",
         "- Treat each token as the real value. Copy tokens exactly as written, e.g. PERSON_0001: never shorten, "
         "reword, translate, merge, or invent tokens, and never write them as \"Person 1\".",
         "- Don't try to guess or recover the real values.",
         "- For HTML output, keep row-level data in one `<script id=\"data\" type=\"application/json\">` block and build the page from it.",
         f"- Give me the result as a file to download (HTML, Word, Excel, CSV, or Markdown) with `{job_id}` in its file name. "
-        f"If you can save files on my computer, save it to `{odir}/` instead.",
+        f"A download is all I need: PII Vault puts the real values back when I download it. "
+        f"(Only if you are already working directly in my files, as in Claude's Cowork mode, save it to `{odir}/` instead. "
+        f"Don't mention that folder otherwise.)",
     ]
     if want_pdf:
         lines.append("- I need a PDF in the end: make a Word (.docx) or HTML file instead; "

@@ -26,7 +26,8 @@ DOB_RE = re.compile(r"(?i)\b(?:dob|d\.o\.b\.|date of birth|birth ?date|birthday|
 LABELED_ID_RE = re.compile(
     r"(?i)\b(?:student|um|banner|employee|emp|net|web|user)\s*(?:id|#|number|no\.?)\s*[:#\-]?\s*([A-Za-z0-9]{5,12})\b")
 STREET_RE = re.compile(
-    r"\b\d{1,6}\s+(?:[NSEW]\.?\s+)?(?:(?:\d{1,3}(?:st|nd|rd|th)|[A-Z][a-z]+)\.?\s){1,4}(?:St|Street|Ave|Avenue|Rd|Road|Dr|Drive|Ln|Lane|Blvd|Boulevard|Ct|Court|Cir|Circle|Way|Pl|Place|Hwy|Highway|Pkwy|Parkway)\b\.?(?:\s+[NSEW]\b\.?)?(?:,?\s*(?:Apt|Unit|Ste|Suite|#)\s*\w+)?")
+    r"\b\d{1,6}\s+(?:[NSEW]\.?\s+)?(?:(?:\d{1,3}(?:st|nd|rd|th)|[A-Z][a-z]+)\.?\s){1,4}(?:St|Street|Ave|Avenue|Rd|Road|Dr|Drive|Ln|Lane|Blvd|Boulevard|Ct|Court|Cir|Circle|Way|Pl|Place|Hwy|Highway|Pkwy|Parkway)\b\.?(?:\s+[NSEW]\b\.?)?(?:,?\s*(?:Apt|Unit|Ste|Suite|#)\s*\w+)?"
+    r"(?:,\s*[A-Z][a-zA-Z.]+(?:\s[A-Z][a-zA-Z.]+){0,2},\s*[A-Z]{2}(?:\s+\d{5}(?:-\d{4})?)?)?")
 PERSON_LABELS = (r"(?:student(?: name)?|name|full name|legal name|preferred name|participant|resident|applicant|"
                  r"employee|patient|client|parent|guardian|emergency contact|contact person|signed by|signature|"
                  r"signer|prepared for|prepared by|submitted by|approved by|advisor|adviser|instructor|"
@@ -313,8 +314,35 @@ def find_values(text: str, known: dict[str, str] | None, use_ner: bool) -> tuple
     for s in find_pii(text, known, use_ner):
         found.setdefault(s.text, s.category)
         origin.setdefault(s.text, s.source)
+    add_family_names(text, found, origin)
     add_name_parts(found, origin)
     return drop_ignored(found), origin
+
+
+NAME_WORD = r"[A-Z][a-z]+(?:['\u2019\-][A-Z]?[a-z]+)?"
+
+
+def add_family_names(text: str, found: dict[str, str], origin: dict[str, str] | None = None) -> None:
+    """Once 'Jasmine Carter' is a person, 'Linda Carter' later in the text is a person too
+    (a parent, a sibling). Only a capitalized word right before a known surname counts."""
+    surnames = set()
+    for v, c in found.items():
+        if c == "PERSON" and len(v.split()) > 1:
+            v2 = re.sub(r"^(?:Mr|Mrs|Ms|Miss|Dr|Prof)\.?\s+", "", v)
+            last = (v2.split(",", 1)[0] if "," in v2 else v2.split()[-1]).strip(" .,")
+            if len(last) >= 3 and last.casefold() not in PART_STOPWORDS:
+                surnames.add(last)
+    if not surnames:
+        return
+    rx = re.compile(r"(?<![\w])(" + NAME_WORD + r")\s+(" + "|".join(re.escape(x) for x in surnames) + r")(?![\w])")
+    for m in rx.finditer(text):
+        first, full = m.group(1), m.group(0)
+        if first.casefold() in PART_STOPWORDS or first in ("The", "Dear", "Hi", "Hello", "Mr", "Mrs", "Ms", "Dr"):
+            continue
+        if full not in found:
+            found[full] = "PERSON"
+            if origin is not None:
+                origin.setdefault(full, "regex")
 
 
 def add_name_parts(found: dict[str, str], origin: dict[str, str] | None = None) -> None:
@@ -375,7 +403,7 @@ def with_known(approved: dict[str, str], known: dict[str, str] | None) -> dict[s
     return merged
 
 
-SOURCE_LABEL = {"regex": "pattern", "known": "seen before", "ollama": "local model", "spacy": "spaCy"}
+SOURCE_LABEL = {"table": "table column", "regex": "pattern", "known": "seen before", "ollama": "local model", "spacy": "spaCy"}
 
 
 def findings(text: str, found: dict[str, str], origin: dict[str, str] | None = None, limit: int = 2000) -> list[dict]:

@@ -389,7 +389,7 @@ def sanitize(path: Path, out_path: Path, vault, plan: dict | None = None, use_ne
         rows = _read_csv(path)
         h = _header_index("CSV", rows, options)
         if h is None:  # no table at all: scan every cell as text
-            known = {**base_known, **_ner_known(_cell_texts(rows), use_ner)}
+            known = {**base_known, **vault.known_values(), **_ner_known(_cell_texts(rows), use_ner)}
             out_rows = [[_scan_text(v, known, vault) for v in r] for r in rows]
             report["text_sheets"].append("CSV")
         else:
@@ -427,11 +427,16 @@ def sanitize(path: Path, out_path: Path, vault, plan: dict | None = None, use_ne
         return {"replaced": counts, "tables": report}
 
     wb = load_workbook(path)  # full load keeps formatting, formulas and other sheets
+    # Table tabs first, text tabs last, so a name found in a table (or its notes column) is also
+    # caught when it appears on an instructions or notes tab of the same workbook.
+    sheets = []
     for ws in list(wb.worksheets):
         rows = [[c.value for c in row] for row in ws.iter_rows()]
+        sheets.append((ws, rows, _header_index(ws.title, rows, options) if any(_filled(r) for r in rows) else None))
+    sheets.sort(key=lambda t: t[2] is None)
+    for ws, rows, h in sheets:
         if not any(_filled(r) for r in rows):
             continue
-        h = _header_index(ws.title, rows, options)
 
         if h is None:  # a text tab: instructions, notes, a letter pasted into a sheet
             if not include_text.get(ws.title, True):
@@ -441,7 +446,7 @@ def sanitize(path: Path, out_path: Path, vault, plan: dict | None = None, use_ne
                     ws.delete_rows(1, ws.max_row)
                 report["left_out"].append(ws.title)
                 continue
-            known = {**base_known, **_ner_known(_cell_texts(rows), use_ner)}
+            known = {**base_known, **vault.known_values(), **_ner_known(_cell_texts(rows), use_ner)}
             _scan_cells(ws, 1, ws.max_row, known, vault, counts, "text_tab")
             report["text_sheets"].append(ws.title)
             continue

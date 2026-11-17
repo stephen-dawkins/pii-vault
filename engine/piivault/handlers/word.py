@@ -94,15 +94,46 @@ def _label_table_names(doc) -> dict[str, str]:
     return out
 
 
+TABLE_CATEGORIES = {"PERSON", "EMAIL", "ID", "PHONE", "ADDRESS", "SSN", "DOB", "ACCOUNT"}
+
+
+def _column_table_values(doc) -> dict[str, str]:
+    """Tables laid out like a spreadsheet: a header row (Name | ID | Email | ...) and one row per
+    person. Each column is classified the same way as a spreadsheet column, and every cell in an
+    identifier column is protected, even with no label in front of it."""
+    from ..detect import classify_column
+    out: dict[str, str] = {}
+    for _, root in _xml_parts(doc):
+        for tbl in root.iter(W + "tbl"):
+            rows = []
+            for tr in tbl.iter(W + "tr"):
+                rows.append(["".join(t.text or "" for t in tc.iter(W + "t")).strip() for tc in tr.iter(W + "tc")])
+            if len(rows) < 2 or len(rows[0]) < 2:
+                continue
+            header = rows[0]
+            for i, h in enumerate(header):
+                values = [r[i] for r in rows[1:] if i < len(r) and r[i]]
+                if not h or not values:
+                    continue
+                cat = classify_column(h, values)["category"]
+                if cat in TABLE_CATEGORIES:
+                    for v in values:
+                        if len(v) >= 2 and v != h:
+                            out.setdefault(v, cat)
+    return out
+
+
 def find_values(path: Path, known: dict | None, use_ner: bool):
     """(found, origin, text) for the whole document, found once so names are caught consistently."""
     from ..detect import find_values as fv, drop_ignored, add_name_parts
     doc = Document(path)
     text = full_text(path)
     found, origin = fv(text, known, use_ner)
-    for v, c in _label_table_names(doc).items():
+    for v, c in list(_label_table_names(doc).items()) + list(_column_table_values(doc).items()):
         found.setdefault(v, c)
-        origin.setdefault(v, "regex")
+        origin.setdefault(v, "table")
+    from ..detect import add_family_names
+    add_family_names(text, found, origin)
     add_name_parts(found, origin)
     return drop_ignored(found), origin, text
 
