@@ -1,0 +1,6 @@
+dist/
+build-tmp/
+__pycache__/
+*.pyc
+windows/build/version_info.txt
+windows/build/MicrosoftEdgeWebview2Setup.exe
