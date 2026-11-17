@@ -142,6 +142,16 @@ class Vault:
             self.by_token = data["by_token"]
             self.counters = data["counters"]
 
+    def _owner_of_part(self, part: str) -> str | None:
+        """The token of the one full name that this first or last name belongs to, if exactly one does.
+        'Jasmine' -> the token of 'Jasmine Carter', so the AI sees one person, not two. A surname
+        shared by two people ('Carter' for Jasmine and Linda) keeps its own token."""
+        from .detect import name_parts
+        owners = {tok for tok, val in self.by_token.items()
+                  if tok.startswith("PERSON_") and len(val.replace(",", " ").split()) > 1
+                  and part in name_parts(val)}
+        return owners.pop() if len(owners) == 1 else None
+
     def token_for(self, value: str, category: str) -> str:
         category = category if category in CATEGORIES else "OTHER"
         k = f"{category}|{_norm(value)}"
@@ -149,12 +159,23 @@ class Vault:
             tok = self.by_key.get(k)
             if tok:
                 return tok
+            if category == "PERSON" and len(str(value).split()) == 1:
+                owner = self._owner_of_part(str(value).strip())
+                if owner:
+                    self.by_key[k] = owner  # remembered, so it stays the same token in later jobs
+                    return owner
             n = self.counters.get(category, 0) + 1
             self.counters[category] = n
             tok = f"{category}_{n:04d}"
             self.by_key[k] = tok
             self.by_token[tok] = str(value).strip()
             return tok
+
+    def prime(self, found: dict[str, str]) -> None:
+        """Give full names their tokens first, so their first and last names can share them."""
+        for v, c in sorted(found.items(), key=lambda x: -len(x[0].split())):
+            if c.rstrip("~") == "PERSON" and len(v.split()) > 1:
+                self.token_for(v, "PERSON")
 
     def value_for(self, token: str) -> str | None:
         return self.by_token.get(token)

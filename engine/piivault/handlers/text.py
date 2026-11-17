@@ -62,6 +62,7 @@ def sanitize(path: Path, out_path: Path, vault, use_ner: bool = True, known: dic
     text = read_text(path)
     approved = review_values(review)
     found = drop_ignored(with_known(approved, known)) if approved is not None else find_values(text, known, use_ner)[0]
+    vault.prime(found)
     spans = resolve(known_value_spans(text, found) + find_pii(text, None, use_ner=False))
     clean = apply_spans(text, spans, vault)
     for s in spans:

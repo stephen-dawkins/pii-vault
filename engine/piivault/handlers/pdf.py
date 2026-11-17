@@ -171,6 +171,7 @@ def sanitize(path: Path, out_path: Path, vault, use_ner: bool = True, known: dic
         found = drop_ignored(with_known(approved, known))
     else:
         found = find_values("\n\n".join(texts), known, use_ner)[0]
+    vault.prime(found)
 
     count = 0
     for i, page in enumerate(doc):

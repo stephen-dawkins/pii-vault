@@ -429,6 +429,9 @@ def findings(text: str, found: dict[str, str], origin: dict[str, str] | None = N
 
 def apply_spans(text: str, spans: list[Span], vault) -> str:
     out, last = [], 0
+    for s in spans:  # full names first, so "Jasmine" can share "Jasmine Carter"'s token
+        if s.category == "PERSON" and len(s.text.split()) > 1:
+            vault.token_for(s.text, s.category)
     for s in sorted(spans, key=lambda x: x.start):
         out.append(text[last:s.start])
         out.append(vault.token_for(s.text, s.category))

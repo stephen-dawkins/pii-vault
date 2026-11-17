@@ -157,6 +157,7 @@ def sanitize(path: Path, out_path: Path, vault, use_ner: bool = True, known: dic
         found = drop_ignored(with_known(approved, known))  # the user's reviewed list; the model already ran during the scan
     else:
         found = find_values(path, known, use_ner)[0]
+    vault.prime(found)
     # then replace every occurrence of every found value, paragraph by paragraph
     from ..detect import known_value_spans, resolve
     count = 0
