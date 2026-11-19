@@ -361,7 +361,7 @@ function sentStage() {
       <div class="row wrap"><button class="btn primary big" data-act="copy-files">${I.copy}Copy Files</button>
         <button class="btn primary big" data-act="copy-prompt">${I.copy}Copy Prompt</button>
         ${tool ? `<button class="btn big" data-act="open-tool">${I.open}Open ${esc(t)}</button>` : ""}</div>
-      ${S.cfg.ai_tool === "claude" ? `<div class="info small" style="margin-top:12px"><b>Skip the download with Claude:</b> in the Claude desktop app, connect the <b>PII Vault › For AI</b> folder to your chat (Cowork mode). Claude reads the protected files from there and saves its answer into For AI › AI Output, and PII Vault restores it by itself. <a data-act="show-folder" data-k="forai">Show the For AI folder</a></div>` : ""}
+      ${S.cfg.ai_tool === "claude" ? `<div class="info small" style="margin-top:12px"><b>Skip the download with Claude:</b> the prompt asks Claude to save its answer straight to your Downloads folder. In the Claude desktop app, approve that when Claude asks, and PII Vault restores the file by itself.</div>` : ""}
       <details class="disc"><summary>${I.chev}See the prompt</summary><div class="prompt-box" style="margin-top:8px">${esc(j.cowork_prompt)}</div></details>
       <div class="row" style="margin-top:10px"><a data-act="reveal" data-p="${esc(j.sanitized_dir)}" class="row" style="gap:8px;font-size:15px">${I.folder.replace('fill="currentColor"', 'fill="none" stroke="currentColor" stroke-width="1.6" style="width:22px;height:22px"')}Show Protected Files</a>
         <span class="spacer"></span><button class="btn" data-act="start-over">New Job</button></div></div>

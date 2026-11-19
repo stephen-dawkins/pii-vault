@@ -381,10 +381,9 @@ def build_prompt(user_prompt: str, job_id: str, files: list[str], want_pdf: bool
         "reword, translate, merge, or invent tokens, and never write them as \"Person 1\".",
         "- Don't try to guess or recover the real values.",
         "- For HTML output, keep row-level data in one `<script id=\"data\" type=\"application/json\">` block and build the page from it.",
-        f"- Give me the result as a file to download (HTML, Word, Excel, CSV, or Markdown) with `{job_id}` in its file name. "
+        f"- Give me the result as a downloadable file (HTML, Word, Excel, CSV, or Markdown) with `{job_id}` in its file name. "
         f"A download is all I need: PII Vault puts the real values back when I download it. "
-        f"(Only if you are already working directly in my files, as in Claude's Cowork mode, save it to `{odir}/` instead. "
-        f"Don't mention that folder otherwise.)",
+        f"Save the file to my Downloads folder; if you need permission to connect to that folder, ask me for it.",
     ]
     if want_pdf:
         lines.append("- I need a PDF in the end: make a Word (.docx) or HTML file instead; "
